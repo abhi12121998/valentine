@@ -4,45 +4,272 @@
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>🌹 Rose Day</title>
+
   <style>
-    body{margin:0;min-height:100vh;display:grid;place-items:center;padding:24px;font-family:system-ui;color:#fff;
-      background: radial-gradient(900px 500px at 20% 20%, rgba(255,77,141,0.22), transparent 60%),
-                  linear-gradient(180deg,#0b1020,#1a0b2e);}
-    .card{width:min(860px,100%);border-radius:22px;padding:22px;background:rgba(255,255,255,0.08);
-      border:1px solid rgba(255,255,255,0.14);backdrop-filter:blur(10px);}
-    h1{margin:0 0 10px;font-size:34px;letter-spacing:-0.02em;}
-    p{margin:0;color:rgba(255,255,255,0.78);line-height:1.6;}
-    .btn{margin-top:16px;display:inline-block;text-decoration:none;color:#fff;font-weight:800;
-      padding:12px 14px;border-radius:14px;background:rgba(255,255,255,0.10);border:1px solid rgba(255,255,255,0.14);}
-    .hidden{display:none;}
+    :root{
+      --bg1:#2a0f18;
+      --bg2:#5a1a1a;
+      --card: rgba(255,255,255,0.10);
+      --stroke: rgba(255,255,255,0.18);
+      --text:#fff7f7;
+      --muted: rgba(255,247,247,0.78);
+      --shadow: 0 30px 80px rgba(0,0,0,0.55);
+      --rose:#ff4d6d;
+    }
+
+    *{ box-sizing:border-box; }
+
+    body{
+      margin:0;
+      min-height:100vh;
+      font-family: ui-serif, Georgia, "Times New Roman", serif;
+      color:var(--text);
+      background:
+        radial-gradient(900px 600px at 20% 20%, rgba(255,77,109,0.25), transparent 60%),
+        linear-gradient(180deg, var(--bg1), var(--bg2));
+      display:grid;
+      place-items:center;
+      padding:24px;
+    }
+
+    .card{
+      width:min(900px,100%);
+      background: linear-gradient(180deg, var(--card), rgba(255,255,255,0.05));
+      border:1px solid var(--stroke);
+      border-radius:28px;
+      box-shadow:var(--shadow);
+      overflow:hidden;
+    }
+
+    .hidden{ display:none; }
+
+    /* ===== LOCKED VIEW ===== */
+    .locked{
+      padding:32px 26px;
+      text-align:center;
+    }
+    .locked h1{
+      margin:0 0 12px;
+      font-size:34px;
+    }
+    .locked p{
+      color:var(--muted);
+      font-size:18px;
+      line-height:1.6;
+    }
+    .btn{
+      margin-top:18px;
+      display:inline-block;
+      text-decoration:none;
+      color:#fff;
+      font-weight:800;
+      padding:12px 20px;
+      border-radius:999px;
+      background: rgba(255,255,255,0.12);
+      border:1px solid rgba(255,255,255,0.18);
+    }
+
+    /* ===== UNLOCKED ===== */
+    .hero img{
+      width:100%;
+      display:block;
+    }
+    .hero{
+      position:relative;
+    }
+    .hero::after{
+      content:"";
+      position:absolute;
+      inset:0;
+      background: linear-gradient(to bottom, rgba(0,0,0,0.15), rgba(0,0,0,0.55));
+    }
+
+    .content{
+      padding:22px;
+    }
+
+    /* Poster (pic-3) */
+    .poster{
+      border-radius:22px;
+      overflow:hidden;
+      box-shadow: 0 22px 60px rgba(0,0,0,0.55);
+      border: 1px solid rgba(255,255,255,0.14);
+      background: rgba(0,0,0,0.12);
+    }
+    .poster img{
+      width:100%;
+      display:block;
+      height:auto;
+    }
+
+    .cta{
+      margin:18px auto 10px;
+      display:flex;
+      justify-content:center;
+    }
+    .cta button{
+      border:none;
+      background: linear-gradient(135deg, #ff4d6d, #c9184a);
+      color:white;
+      font-size:18px;
+      padding:14px 36px;
+      border-radius:999px;
+      cursor:pointer;
+      font-weight:700;
+      box-shadow: 0 10px 30px rgba(0,0,0,0.45);
+      transition: transform 160ms ease, box-shadow 160ms ease;
+    }
+    .cta button:hover{
+      transform: translateY(-2px);
+      box-shadow: 0 14px 40px rgba(0,0,0,0.55);
+    }
+
+    /* ===== MOBILE ===== */
+    @media (max-width:600px){
+      body{ padding:0; place-items:stretch; }
+      .card{ border-radius:0; min-height:100vh; }
+      .content{ padding:16px 14px; }
+    }
+
+    /* ===== Rose shower layer ===== */
+    .roseLayer{
+      position: fixed;
+      inset: 0;
+      pointer-events: none;
+      overflow: hidden;
+      z-index: 9999;
+    }
+
+    .rose{
+      position: absolute;
+      top: -40px;
+      font-size: 24px;
+      filter: drop-shadow(0 8px 12px rgba(0,0,0,0.35));
+      opacity: 0.95;
+      animation: fall linear forwards;
+      will-change: transform, opacity;
+    }
+
+    @keyframes fall{
+      0%   { transform: translate3d(0,0,0) rotate(0deg); opacity: 0; }
+      10%  { opacity: 1; }
+      100% { transform: translate3d(var(--drift, 0px), 110vh, 0) rotate(var(--rot, 240deg)); opacity: 0.95; }
+    }
   </style>
 </head>
+
 <body>
   <div class="card">
-    <div id="locked" class="hidden">
+
+    <!-- LOCKED -->
+    <div id="locked" class="locked hidden">
       <h1>Not so early 😌</h1>
-      <p>This surprise unlocks on <b>Feb 7</b>. Come back on the right day 💗</p>
+      <p>
+        This surprise unlocks on <b>Feb 7</b>.<br/>
+        Come back on the right day 🌹
+      </p>
       <a class="btn" href="./index.html">⬅ Back</a>
     </div>
 
+    <!-- UNLOCKED -->
     <div id="unlocked" class="hidden">
-      <h1>Rose Day 🌹</h1>
-      <p>Replace this with your own creative surprise: a note, poem, photo, playlist link, anything.</p>
-      <p style="margin-top:10px;">Example: “If I could, I’d give you a rose every time you smiled.”</p>
-      <a class="btn" href="./index.html">⬅ Back</a>
+      <!-- Keep first pic as-is -->
+      <div class="hero">
+        <img src="./assets/images/rose-couple-1.png" alt="Us in a rose garden">
+      </div>
+
+      <div class="content">
+        <!-- Add pic-3 (poster) -->
+        <div class="poster">
+          <img src="./assets/images/rose-poster.png" alt="Rose Day Poster">
+        </div>
+
+        <!-- Keep send with as-is (rose shower trigger) -->
+        <div class="cta">
+          <button id="roseBtn" type="button">Sent with ❤️</button>
+        </div>
+      </div>
     </div>
   </div>
 
   <script>
+    // =========================
+    // DATE + DEBUG GATE
+    // =========================
     const UNLOCK_MONTH = 2, UNLOCK_DAY = 7; // Feb 7
     const debug = localStorage.getItem("vday_debug") === "1";
 
-    const year = new Date().getFullYear();
-    const unlockDate = new Date(year, UNLOCK_MONTH - 1, UNLOCK_DAY, 0, 0, 0, 0);
-    const now = new Date();
+    if (debug) {
+      document.getElementById("unlocked").classList.remove("hidden");
+    } else {
+      const now = new Date();
+      const year = now.getFullYear();
+      const unlockDate = new Date(year, UNLOCK_MONTH - 1, UNLOCK_DAY, 0, 0, 0, 0);
 
-    const ok = debug || (now.getTime() >= unlockDate.getTime());
-    document.getElementById(ok ? "unlocked" : "locked").classList.remove("hidden");
+      if (now.getTime() >= unlockDate.getTime()) {
+        document.getElementById("unlocked").classList.remove("hidden");
+      } else {
+        document.getElementById("locked").classList.remove("hidden");
+      }
+    }
+
+    // =========================
+    // ROSE SHOWER (click = more)
+    // =========================
+    const roseLayer = document.createElement("div");
+    roseLayer.className = "roseLayer";
+    document.body.appendChild(roseLayer);
+
+    function spawnRoseBurst(count = 12){
+      const emojis = ["🌹","🌹","🌹","🌸","💗"]; // mostly roses
+      for(let i=0;i<count;i++){
+        const el = document.createElement("div");
+        el.className = "rose";
+        el.textContent = emojis[Math.floor(Math.random()*emojis.length)];
+
+        const x = Math.random() * window.innerWidth;
+        const size = 18 + Math.random()*22; // 18-40px
+        const drift = (Math.random()*2 - 1) * 140; // -140..140
+        const rot = (120 + Math.random()*360) + "deg";
+        const duration = (3.2 + Math.random()*2.4); // 3.2..5.6s
+
+        el.style.left = x + "px";
+        el.style.fontSize = size + "px";
+        el.style.setProperty("--drift", drift + "px");
+        el.style.setProperty("--rot", rot);
+        el.style.animationDuration = duration + "s";
+
+        roseLayer.appendChild(el);
+        setTimeout(() => el.remove(), (duration * 1000) + 200);
+      }
+    }
+
+    let rainTimer = null;
+    let intensity = 0; // increases with clicks
+
+    function startOrBoostRain(){
+      intensity = Math.min(12, intensity + 2); // each click boosts
+      spawnRoseBurst(10 + intensity);
+
+      if (rainTimer) clearInterval(rainTimer);
+
+      const interval = Math.max(120, 520 - intensity*30); // higher intensity => faster
+      rainTimer = setInterval(() => {
+        spawnRoseBurst(4 + Math.floor(intensity/2));
+      }, interval);
+
+      clearTimeout(startOrBoostRain._cooldown);
+      startOrBoostRain._cooldown = setTimeout(() => {
+        clearInterval(rainTimer);
+        rainTimer = null;
+        intensity = 0;
+      }, 9000);
+    }
+
+    const roseBtn = document.getElementById("roseBtn");
+    if (roseBtn){
+      roseBtn.addEventListener("click", () => startOrBoostRain());
+    }
   </script>
 </body>
 </html>
