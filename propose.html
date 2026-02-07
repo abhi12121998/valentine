@@ -1,37 +1,395 @@
-<!doctype html><html lang="en"><head>
-<meta charset="utf-8"/><meta name="viewport" content="width=device-width, initial-scale=1"/>
-<title>💍 Propose Day</title>
-<style>
-body{margin:0;min-height:100vh;display:grid;place-items:center;padding:24px;font-family:system-ui;color:#fff;
-background: radial-gradient(900px 500px at 20% 20%, rgba(139,92,246,0.22), transparent 60%),
-linear-gradient(180deg,#0b1020,#1a0b2e);}
-.card{width:min(860px,100%);border-radius:22px;padding:22px;background:rgba(255,255,255,0.08);
-border:1px solid rgba(255,255,255,0.14);backdrop-filter:blur(10px);}
-h1{margin:0 0 10px;font-size:34px;letter-spacing:-0.02em;}
-p{margin:0;color:rgba(255,255,255,0.78);line-height:1.6;}
-.btn{margin-top:16px;display:inline-block;text-decoration:none;color:#fff;font-weight:800;
-padding:12px 14px;border-radius:14px;background:rgba(255,255,255,0.10);border:1px solid rgba(255,255,255,0.14);}
-.hidden{display:none;}
-</style></head><body>
-<div class="card">
-  <div id="locked" class="hidden">
-    <h1>Not so early 😌</h1>
-    <p>This unlocks on <b>Feb 8</b>. No peeking 😏</p>
-    <a class="btn" href="./index.html">⬅ Back</a>
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>💍 Propose Day</title>
+
+  <style>
+    :root{
+      --bg1:#0b1020;
+      --bg2:#1a0b2e;
+      --card: rgba(255,255,255,0.10);
+      --stroke: rgba(255,255,255,0.18);
+      --text:#f8f7ff;
+      --muted: rgba(248,247,255,0.78);
+      --shadow: 0 30px 80px rgba(0,0,0,0.55);
+      --accent:#8b5cf6;
+      --accent2:#ff4d8d;
+    }
+
+    *{ box-sizing:border-box; }
+
+    body{
+      margin:0;
+      min-height:100vh;
+      font-family: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial;
+      color:var(--text);
+      background:
+        radial-gradient(900px 600px at 20% 20%, rgba(255,77,141,0.20), transparent 60%),
+        radial-gradient(700px 500px at 80% 25%, rgba(139,92,246,0.22), transparent 60%),
+        linear-gradient(180deg, var(--bg1), var(--bg2));
+      display:grid;
+      place-items:center;
+      padding:24px;
+    }
+
+    .card{
+      width:min(960px,100%);
+      background: linear-gradient(180deg, var(--card), rgba(255,255,255,0.06));
+      border:1px solid var(--stroke);
+      border-radius:28px;
+      box-shadow:var(--shadow);
+      overflow:hidden;
+      backdrop-filter: blur(12px);
+
+      /* important for mood layer inside card */
+      position: relative;
+      z-index: 2;
+    }
+
+    .hidden{ display:none; }
+
+    /* ===== LOCKED ===== */
+    .locked{
+      padding:32px 26px;
+      text-align:center;
+      position: relative;
+      z-index: 3;
+    }
+    .locked h1{
+      margin:0 0 12px;
+      font-size:34px;
+      letter-spacing:-0.02em;
+    }
+    .locked p{
+      color:var(--muted);
+      font-size:18px;
+      line-height:1.6;
+      margin:0;
+    }
+    .btn{
+      margin-top:18px;
+      display:inline-block;
+      text-decoration:none;
+      color:#fff;
+      font-weight:800;
+      padding:12px 20px;
+      border-radius:999px;
+      background: rgba(255,255,255,0.12);
+      border:1px solid rgba(255,255,255,0.18);
+    }
+
+    /* ===== UNLOCKED ===== */
+    .header{
+      padding:22px 22px 0;
+      text-align:center;
+      position: relative;
+      z-index: 3;
+    }
+    .header h1{
+      margin:0;
+      font-size: clamp(28px,4.5vw,42px);
+      letter-spacing:-0.02em;
+    }
+    .header p{
+      margin:10px 0 0;
+      color:var(--muted);
+      line-height:1.6;
+      font-size:16px;
+    }
+
+    .videoWrap{
+      padding:18px 22px 10px;
+      position: relative;
+      z-index: 3;
+    }
+
+    .videoCard{
+      position:relative;
+      border-radius:22px;
+      overflow:hidden;
+      border:1px solid rgba(255,255,255,0.14);
+      box-shadow: 0 22px 60px rgba(0,0,0,0.55);
+      background: rgba(0,0,0,0.22);
+    }
+
+    video{
+      width:100%;
+      height:auto;
+      display:block;
+      background:#000;
+    }
+
+    /* Tap-to-start overlay (helps autoplay restrictions on phones) */
+    .tapOverlay{
+      position:absolute;
+      inset:0;
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      gap:10px;
+      flex-direction:column;
+      background: radial-gradient(520px 320px at 50% 40%, rgba(255,77,141,0.18), transparent 60%),
+                  rgba(0,0,0,0.45);
+      cursor:pointer;
+      user-select:none;
+      -webkit-tap-highlight-color: transparent;
+      transition: opacity 200ms ease;
+    }
+    .tapOverlay.hidden{ opacity:0; pointer-events:none; }
+    .tapBtn{
+      border:none;
+      cursor:pointer;
+      font-weight:900;
+      padding:14px 18px;
+      border-radius:999px;
+      color:white;
+      background: linear-gradient(135deg, var(--accent), var(--accent2));
+      box-shadow: 0 14px 40px rgba(0,0,0,0.55);
+    }
+    .tapHint{
+      color: rgba(248,247,255,0.82);
+      font-size:14px;
+    }
+
+    .footer{
+      padding: 0 22px 22px;
+      display:flex;
+      justify-content:center;
+      gap:12px;
+      flex-wrap:wrap;
+      position: relative;
+      z-index: 3;
+    }
+    .pill{
+      border:none;
+      cursor:pointer;
+      font-weight:850;
+      padding:12px 18px;
+      border-radius:999px;
+      color:white;
+      background: rgba(255,255,255,0.12);
+      border:1px solid rgba(255,255,255,0.18);
+      transition: transform 160ms ease, filter 160ms ease;
+    }
+    .pill:hover{ transform: translateY(-1px); filter: brightness(1.06); }
+
+    .primary{
+      background: linear-gradient(135deg, var(--accent), var(--accent2));
+      border:none;
+    }
+
+    /* ===== MOBILE ===== */
+    @media (max-width:600px){
+      body{ padding:0; place-items:stretch; }
+      .card{ border-radius:0; min-height:100vh; }
+      .header{ padding:18px 16px 0; }
+      .videoWrap{ padding:14px 16px 10px; }
+      .footer{ padding: 0 16px 18px; }
+    }
+
+    /* ===== MOOD AREA: fills under the footer inside the card ===== */
+    .bottomMood{
+      position: absolute;
+      left: 0;
+      right: 0;
+
+      /* computed in JS to start right under the footer */
+      top: var(--moodTop, 70%);
+      bottom: 0;
+
+      pointer-events: none;
+      z-index: 1;
+      overflow: hidden;
+
+      background:
+        radial-gradient(420px 260px at 50% 0%, rgba(255,77,141,0.28), transparent 70%),
+        radial-gradient(520px 340px at 30% 100%, rgba(139,92,246,0.22), transparent 70%),
+        linear-gradient(to bottom, rgba(0,0,0,0.08), rgba(0,0,0,0.45));
+    }
+
+    .moodFloat{
+      position: absolute;
+      bottom: -30px;
+      font-size: 18px;
+      opacity: 0.85;
+      animation: floatUp linear forwards;
+      filter: drop-shadow(0 8px 12px rgba(0,0,0,0.35));
+      will-change: transform, opacity;
+    }
+
+    @keyframes floatUp{
+      from{ transform: translateY(0) scale(0.9); opacity: 0; }
+      10%{ opacity: 1; }
+      to{ transform: translateY(-40vh) scale(1.2); opacity: 0; }
+    }
+  </style>
+</head>
+
+<body>
+  <div class="card">
+
+    <!-- LOCKED -->
+    <div id="locked" class="locked hidden">
+      <h1>Not so early 😌</h1>
+      <p>
+        This surprise unlocks on <b>Feb 8</b>.<br/>
+        Come back when the ring is ready 💍
+      </p>
+      <a class="btn" href="./index.html">⬅ Back</a>
+    </div>
+
+    <!-- UNLOCKED -->
+    <div id="unlocked" class="hidden">
+      <div class="header">
+        <h1>Propose Day 💍</h1>
+        <p>Press play… and don’t blink. This is the part where my heart gets brave.</p>
+      </div>
+
+      <div class="videoWrap">
+        <div class="videoCard">
+          <!-- ✅ Put your file here -->
+          <video id="proposalVideo" playsinline preload="metadata" controls>
+            <source src="./assets/audio.mp4" type="video/mp4" />
+            Your browser does not support the video tag.
+          </video>
+
+          <!-- Tap overlay to start (helps on iPhone/Android autoplay rules) -->
+          <div id="tapOverlay" class="tapOverlay">
+            <button class="tapBtn" type="button">Play 💜</button>
+            <div class="tapHint">Hey gogo this song for you</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="footer">
+        <button class="pill" type="button" id="replayBtn">Replay 🔁</button>
+        <button class="pill primary" type="button" id="confettiBtn">Okay… I’m blushing 😳✨</button>
+      </div>
+
+      <!-- ✅ Mood layer starts under the footer and fills the empty area -->
+      <div class="bottomMood"></div>
+    </div>
   </div>
 
-  <div id="unlocked" class="hidden">
-    <h1>Propose Day 💍</h1>
-    <p>Put your cutest “proposal” line here. Or a mini game. Or a selfie + caption.</p>
-    <a class="btn" href="./index.html">⬅ Back</a>
-  </div>
-</div>
-<script>
-const UNLOCK_MONTH=2, UNLOCK_DAY=8;
-const debug = localStorage.getItem("vday_debug")==="1";
-const year=new Date().getFullYear();
-const unlockDate=new Date(year,UNLOCK_MONTH-1,UNLOCK_DAY,0,0,0,0);
-const ok = debug || (Date.now()>=unlockDate.getTime());
-document.getElementById(ok?"unlocked":"locked").classList.remove("hidden");
-</script>
-</body></html>
+  <script>
+    // =========================
+    // DATE + DEBUG GATE
+    // =========================
+    const UNLOCK_MONTH = 2, UNLOCK_DAY = 8; // Feb 8
+    const debug = localStorage.getItem("vday_debug") === "1";
+
+    if (debug) {
+      document.getElementById("unlocked").classList.remove("hidden");
+    } else {
+      const now = new Date();
+      const year = now.getFullYear();
+      const unlockDate = new Date(year, UNLOCK_MONTH - 1, UNLOCK_DAY, 0, 0, 0, 0);
+
+      if (now.getTime() >= unlockDate.getTime()) {
+        document.getElementById("unlocked").classList.remove("hidden");
+      } else {
+        document.getElementById("locked").classList.remove("hidden");
+      }
+    }
+
+    // =========================
+    // VIDEO START (tap overlay)
+    // =========================
+    const video = document.getElementById("proposalVideo");
+    const overlay = document.getElementById("tapOverlay");
+    const replayBtn = document.getElementById("replayBtn");
+    const confettiBtn = document.getElementById("confettiBtn");
+
+    async function playVideo(){
+      try{
+        await video.play();
+        overlay.classList.add("hidden");
+      }catch(e){
+        // autoplay blocked -> overlay stays
+      }
+    }
+
+    overlay?.addEventListener("click", playVideo);
+    video?.addEventListener("play", () => overlay.classList.add("hidden"));
+    video?.addEventListener("pause", () => {
+      if (video.currentTime < 0.2) overlay.classList.remove("hidden");
+    });
+
+    replayBtn?.addEventListener("click", () => {
+      video.currentTime = 0;
+      playVideo();
+    });
+
+    // =========================
+    // Sparkle burst (button)
+    // =========================
+    function sparkleBurst(){
+      const N = 28;
+      for(let i=0;i<N;i++){
+        const s = document.createElement("div");
+        s.textContent = Math.random() < 0.6 ? "✨" : Math.random() < 0.8 ? "💖" : "💍";
+        s.style.position = "fixed";
+        s.style.left = (Math.random()*100) + "vw";
+        s.style.top  = (-10) + "px";
+        s.style.fontSize = (14 + Math.random()*20) + "px";
+        s.style.pointerEvents = "none";
+        s.style.filter = "drop-shadow(0 10px 18px rgba(0,0,0,0.35))";
+        s.style.opacity = "0.95";
+        const drift = (Math.random()*2 - 1) * 160;
+        const dur = 2400 + Math.random()*1600;
+
+        s.animate([
+          { transform: "translate3d(0,0,0) rotate(0deg)", opacity: 0 },
+          { opacity: 1, offset: 0.12 },
+          { transform: `translate3d(${drift}px, 115vh, 0) rotate(${180+Math.random()*360}deg)`, opacity: 1 }
+        ], { duration: dur, easing: "linear", fill: "forwards" });
+
+        document.body.appendChild(s);
+        setTimeout(() => s.remove(), dur + 200);
+      }
+    }
+
+    confettiBtn?.addEventListener("click", sparkleBurst);
+
+    // =========================
+    // Mood layer (fills below footer)
+    // =========================
+    const card = document.querySelector(".card");
+    const footer = document.querySelector(".footer");
+    const moodLayer = document.querySelector(".bottomMood");
+    const moodEmojis = ["💖","💍","✨","💕"];
+
+    function setMoodTop(){
+      if (!card || !footer) return;
+      const cardRect = card.getBoundingClientRect();
+      const footerRect = footer.getBoundingClientRect();
+
+      // distance from top of card to bottom of footer
+      const topPx = (footerRect.bottom - cardRect.top) + 14;
+      card.style.setProperty("--moodTop", topPx + "px");
+    }
+
+    function spawnMood(){
+      if (!moodLayer) return;
+
+      const el = document.createElement("div");
+      el.className = "moodFloat";
+      el.textContent = moodEmojis[Math.floor(Math.random()*moodEmojis.length)];
+
+      el.style.left = Math.random()*100 + "%";
+      el.style.fontSize = (14 + Math.random()*18) + "px";
+      el.style.animationDuration = (4 + Math.random()*4) + "s";
+
+      moodLayer.appendChild(el);
+      setTimeout(() => el.remove(), 9000);
+    }
+
+    window.addEventListener("load", setMoodTop);
+    window.addEventListener("resize", setMoodTop);
+
+    setInterval(spawnMood, 1100);
+  </script>
+</body>
+</html>
