@@ -1,36 +1,476 @@
- <!doctype html><html lang="en"><head>
-<meta charset="utf-8"/><meta name="viewport" content="width=device-width, initial-scale=1"/>
-<title>🍫 Chocolate Day</title>
-<style>
-body{margin:0;min-height:100vh;display:grid;place-items:center;padding:24px;font-family:system-ui;color:#fff;
-background: radial-gradient(900px 500px at 20% 20%, rgba(255,190,77,0.18), transparent 60%),
-linear-gradient(180deg,#0b1020,#1a0b2e);}
-.card{width:min(860px,100%);border-radius:22px;padding:22px;background:rgba(255,255,255,0.08);
-border:1px solid rgba(255,255,255,0.14);backdrop-filter:blur(10px);}
-h1{margin:0 0 10px;font-size:34px;letter-spacing:-0.02em;}
-p{margin:0;color:rgba(255,255,255,0.78);line-height:1.6;}
-.btn{margin-top:16px;display:inline-block;text-decoration:none;color:#fff;font-weight:800;
-padding:12px 14px;border-radius:14px;background:rgba(255,255,255,0.10);border:1px solid rgba(255,255,255,0.14);}
-.hidden{display:none;}
-</style></head><body>
-<div class="card">
-  <div id="locked" class="hidden">
-    <h1>Not so early 😌</h1>
-    <p>Unlocks on <b>Feb 9</b>. Sweet things take time 🍫</p>
-    <a class="btn" href="./index.html">⬅ Back</a>
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>🍫 Chocolate Day</title>
+
+  <style>
+    *{ box-sizing:border-box; }
+    html,body{ height:100%; }
+    body{
+      margin:0;
+      overflow:hidden;
+      background:#0b1020;
+      font-family: system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial;
+      color: #fff;
+    }
+
+    /* ===== LOCKED CARD UI ===== */
+    .lockWrap{
+      position: fixed;
+      inset: 0;
+      display: grid;
+      place-items: center;
+      padding: 24px;
+      background:
+        radial-gradient(900px 600px at 20% 20%, rgba(255,77,141,0.20), transparent 60%),
+        radial-gradient(700px 500px at 80% 25%, rgba(139,92,246,0.22), transparent 60%),
+        linear-gradient(180deg, #0b1020, #1a0b2e);
+    }
+    .lockCard{
+      width: min(820px, 100%);
+      background: rgba(255,255,255,0.10);
+      border: 1px solid rgba(255,255,255,0.18);
+      border-radius: 24px;
+      padding: 22px;
+      box-shadow: 0 30px 80px rgba(0,0,0,0.55);
+      backdrop-filter: blur(12px);
+      text-align: center;
+    }
+    .lockCard h1{
+      margin: 0 0 10px;
+      font-size: clamp(26px, 4vw, 40px);
+      letter-spacing: -0.02em;
+    }
+    .lockCard p{
+      margin: 0;
+      color: rgba(255,255,255,0.78);
+      line-height: 1.6;
+      font-size: 16px;
+    }
+    .lockBtn{
+      display: inline-block;
+      margin-top: 16px;
+      text-decoration:none;
+      color:#fff;
+      font-weight: 850;
+      padding: 12px 18px;
+      border-radius: 999px;
+      background: rgba(255,255,255,0.12);
+      border: 1px solid rgba(255,255,255,0.18);
+    }
+    .hidden{ display:none; }
+
+    /* ===== BACKGROUND + CANVAS (UNLOCKED) ===== */
+    .bg{
+      position: fixed;
+      inset: 0;
+      background-position: center;
+      background-size: cover;
+      background-repeat: no-repeat;
+      transform: scale(1.02);
+      filter: saturate(1.05) contrast(1.05);
+      z-index: 0;
+    }
+    .bg::after{
+      content:"";
+      position:absolute;
+      inset:0;
+      background:
+        radial-gradient(900px 700px at 25% 20%, rgba(255,77,141,0.18), transparent 60%),
+        radial-gradient(900px 700px at 80% 30%, rgba(139,92,246,0.18), transparent 60%),
+        radial-gradient(1400px 900px at 50% 60%, rgba(0,0,0,0.08), rgba(0,0,0,0.65));
+    }
+
+    canvas{
+      position: fixed;
+      inset: 0;
+      width: 100%;
+      height: 100%;
+      display:block;
+      z-index: 1;
+    }
+  </style>
+</head>
+
+<body>
+
+  <!-- LOCKED VIEW -->
+  <div id="locked" class="lockWrap hidden">
+    <div class="lockCard">
+      <h1>Not so early 😌🍫</h1>
+      <p>
+        This surprise unlocks on <b>Feb 9</b>.<br/>
+        Come back when the chocolate decides to fall for you.
+      </p>
+      <a class="lockBtn" href="./index.html">⬅ Back</a>
+    </div>
   </div>
+
+  <!-- UNLOCKED VIEW -->
   <div id="unlocked" class="hidden">
-    <h1>Chocolate Day 🍫</h1>
-    <p>Idea: show 3 “chocolate coupons” she can redeem (real-life).</p>
-    <a class="btn" href="./index.html">⬅ Back</a>
+    <div class="bg" id="bg"></div>
+    <canvas id="c"></canvas>
   </div>
-</div>
-<script>
-const UNLOCK_MONTH=2, UNLOCK_DAY=9;
-const debug = localStorage.getItem("vday_debug")==="1";
-const year=new Date().getFullYear();
-const unlockDate=new Date(year,UNLOCK_MONTH-1,UNLOCK_DAY,0,0,0,0);
-const ok = debug || (Date.now()>=unlockDate.getTime());
-document.getElementById(ok?"unlocked":"locked").classList.remove("hidden");
-</script>
-</body></html>
+
+  <script>
+    // =========================
+    // DATE + DEBUG GATE
+    // =========================
+    const UNLOCK_MONTH = 2, UNLOCK_DAY = 9; // Feb 9
+    const debug = localStorage.getItem("vday_debug") === "1";
+
+    function showUnlocked(){
+      document.getElementById("unlocked").classList.remove("hidden");
+      startChocolateGame(); // run animation only when unlocked
+    }
+    function showLocked(){
+      document.getElementById("locked").classList.remove("hidden");
+    }
+
+    if (debug){
+      showUnlocked();
+    } else {
+      const now = new Date();
+      const year = now.getFullYear();
+      const unlockDate = new Date(year, UNLOCK_MONTH - 1, UNLOCK_DAY, 0, 0, 0, 0);
+      (now.getTime() >= unlockDate.getTime()) ? showUnlocked() : showLocked();
+    }
+
+    // =========================
+    // CHOCOLATE GAME (runs only if unlocked)
+    // =========================
+    function startChocolateGame(){
+      // ---- background image ----
+      const BG_IMAGE = "./assets/images/choco.png"; // <-- your background image
+      document.getElementById("bg").style.backgroundImage = `url('${BG_IMAGE}')`;
+
+      // ---- config ----
+      const isMobile = matchMedia("(pointer: coarse)").matches || innerWidth < 720;
+
+      let SPAWN_EVERY_MS = isMobile ? 520 : 420;
+      let BALLS_PER_TICK = isMobile ? 2 : 3;
+
+      const MAX_BALLS = isMobile ? 60 : 130;
+      const MAX_CHOC  = isMobile ? 90 : 180;
+
+      const BALL_LIFETIME_MS = isMobile ? 6500 : 9000;
+      const FLOOR_HITS_MAX   = isMobile ? 2 : 3;
+
+      const COLLISION_COOLDOWN = 150;
+
+      const RESTITUTION = 0.92;
+      const FRICTION = 0.994;
+      const GRAVITY = 0.03;
+      const WALL_PAD = 6;
+
+      const CELL_SIZE = isMobile ? 70 : 80;
+
+      // ---- canvas setup ----
+      const canvas = document.getElementById("c");
+      const ctx = canvas.getContext("2d", { alpha: true });
+
+      let W=innerWidth, H=innerHeight;
+
+      function resize(){
+        W = innerWidth; H = innerHeight;
+        const dpr = Math.max(1, window.devicePixelRatio || 1);
+        const maxDpr = isMobile ? 1.5 : 2.5;
+        const used = Math.min(dpr, maxDpr);
+
+        canvas.width = Math.floor(W * used);
+        canvas.height = Math.floor(H * used);
+        canvas.style.width = W + "px";
+        canvas.style.height = H + "px";
+        ctx.setTransform(used,0,0,used,0,0);
+      }
+      window.addEventListener("resize", resize);
+      resize();
+
+      const rand = (a,b)=>a+Math.random()*(b-a);
+
+      // ---- objects ----
+      const balls = [];
+      const chocs = [];
+
+      function addChocolate(x,y,bonus=false){
+        if (chocs.length > MAX_CHOC) chocs.shift();
+        const size = bonus ? rand(28, 44) : rand(18, 34);
+        chocs.push({
+          x, y,
+          vx: rand(-0.6, 0.6),
+          vy: rand(1.6, 2.8),
+          rot: rand(0, Math.PI*2),
+          vr: rand(-0.05, 0.05),
+          size,
+          born: performance.now()
+        });
+      }
+
+      function spawnBallFromEdge(){
+        if (balls.length >= MAX_BALLS) return;
+
+        const r = rand(isMobile ? 11 : 12, isMobile ? 17 : 20);
+        const edge = (Math.random()*4)|0;
+
+        const cx = W * 0.5;
+        const cy = H * 0.45;
+
+        let x,y;
+        const off = r + 28;
+
+        if (edge === 0){ x = -off; y = rand(H*0.10, H*0.90); }
+        else if (edge === 1){ x = W + off; y = rand(H*0.10, H*0.90); }
+        else if (edge === 2){ x = rand(W*0.10, W*0.90); y = -off; }
+        else { x = rand(W*0.10, W*0.90); y = H + off; }
+
+        const dx = cx - x;
+        const dy = cy - y;
+        const dist = Math.max(1, Math.hypot(dx,dy));
+
+        const speed = rand(isMobile ? 2.8 : 3.1, isMobile ? 4.4 : 5.2);
+        const vx = (dx / dist) * speed + rand(-0.55, 0.55);
+        const vy = (dy / dist) * speed + rand(-0.55, 0.55);
+
+        const hue = (310 + Math.random()*50) | 0;
+
+        balls.push({
+          x,y,r,vx,vy,
+          mass: r*r,
+          hue,
+          born: performance.now(),
+          lastHit: 0,
+          floorHits: 0,
+          dead:false
+        });
+      }
+
+      function bounceInBox(b){
+        const left = WALL_PAD + b.r;
+        const right = W - WALL_PAD - b.r;
+        const top = WALL_PAD + b.r;
+        const bottom = H - WALL_PAD - b.r;
+
+        if (b.x < left){ b.x = left; b.vx = Math.abs(b.vx) * RESTITUTION; }
+        else if (b.x > right){ b.x = right; b.vx = -Math.abs(b.vx) * RESTITUTION; }
+
+        if (b.y < top){ b.y = top; b.vy = Math.abs(b.vy) * RESTITUTION; }
+        else if (b.y > bottom){
+          b.y = bottom;
+          b.vy = -Math.abs(b.vy) * RESTITUTION;
+          b.floorHits += 1;
+          if (b.floorHits >= FLOOR_HITS_MAX) b.dead = true;
+        }
+      }
+
+      function collideAndResolve(a,b){
+        const dx = b.x - a.x;
+        const dy = b.y - a.y;
+        const dist2 = dx*dx + dy*dy;
+        const min = a.r + b.r;
+        const min2 = min*min;
+        if (dist2 >= min2 || dist2 === 0) return false;
+
+        const dist = Math.sqrt(dist2);
+        const nx = dx / dist;
+        const ny = dy / dist;
+
+        const overlap = min - dist;
+        const total = a.mass + b.mass;
+        a.x -= nx * overlap * (b.mass / total);
+        a.y -= ny * overlap * (b.mass / total);
+        b.x += nx * overlap * (a.mass / total);
+        b.y += ny * overlap * (a.mass / total);
+
+        const rvx = b.vx - a.vx;
+        const rvy = b.vy - a.vy;
+        const velAlongNormal = rvx*nx + rvy*ny;
+        if (velAlongNormal > 0) return true;
+
+        const j = -(1 + RESTITUTION) * velAlongNormal / (1/a.mass + 1/b.mass);
+        a.vx -= (j*nx) / a.mass;
+        a.vy -= (j*ny) / a.mass;
+        b.vx += (j*nx) / b.mass;
+        b.vy += (j*ny) / b.mass;
+
+        return true;
+      }
+
+      function maybeSpawnChocolate(a,b){
+        const now = performance.now();
+        if (now - a.lastHit < COLLISION_COOLDOWN) return;
+        if (now - b.lastHit < COLLISION_COOLDOWN) return;
+        a.lastHit = now;
+        b.lastHit = now;
+        addChocolate((a.x+b.x)*0.5, (a.y+b.y)*0.5, false);
+      }
+
+      // ---- spatial grid ----
+      let grid = new Map();
+      function cellKey(cx,cy){ return cx + "," + cy; }
+
+      function buildGrid(){
+        grid.clear();
+        for (let i=0;i<balls.length;i++){
+          const b = balls[i];
+          if (b.dead) continue;
+          const cx = (b.x / CELL_SIZE) | 0;
+          const cy = (b.y / CELL_SIZE) | 0;
+          const key = cellKey(cx,cy);
+          let arr = grid.get(key);
+          if (!arr){ arr = []; grid.set(key, arr); }
+          arr.push(i);
+        }
+      }
+
+      function checkCollisionsGrid(){
+        for (const [key, indices] of grid.entries()){
+          const [sx,sy] = key.split(",").map(Number);
+
+          for (let ox=-1; ox<=1; ox++){
+            for (let oy=-1; oy<=1; oy++){
+              const nKey = cellKey(sx+ox, sy+oy);
+              const other = grid.get(nKey);
+              if (!other) continue;
+
+              for (let aIdx=0; aIdx<indices.length; aIdx++){
+                const i = indices[aIdx];
+                const A = balls[i];
+                if (!A || A.dead) continue;
+
+                for (let bIdx=0; bIdx<other.length; bIdx++){
+                  const j = other[bIdx];
+                  if (j <= i) continue;
+
+                  const B = balls[j];
+                  if (!B || B.dead) continue;
+
+                  const hit = collideAndResolve(A,B);
+                  if (hit) maybeSpawnChocolate(A,B);
+                }
+              }
+            }
+          }
+        }
+      }
+
+      // ---- draw ----
+      function drawBall(b){
+        ctx.beginPath();
+        ctx.arc(b.x, b.y, b.r, 0, Math.PI*2);
+
+        const grad = ctx.createRadialGradient(
+          b.x - b.r*0.35, b.y - b.r*0.35, b.r*0.2,
+          b.x, b.y, b.r
+        );
+        grad.addColorStop(0, `hsla(${b.hue}, 90%, 78%, 0.95)`);
+        grad.addColorStop(1, `hsla(${b.hue}, 70%, 45%, 0.86)`);
+        ctx.fillStyle = grad;
+        ctx.fill();
+
+        ctx.globalAlpha = 0.22;
+        ctx.beginPath();
+        ctx.arc(b.x - b.r*0.35, b.y - b.r*0.35, b.r*0.5, 0, Math.PI*2);
+        ctx.fillStyle = "white";
+        ctx.fill();
+        ctx.globalAlpha = 1;
+      }
+
+      function drawChocolate(c){
+        ctx.save();
+        ctx.translate(c.x, c.y);
+        ctx.rotate(c.rot);
+        ctx.font = `${c.size}px system-ui`;
+        ctx.textAlign = "center";
+        ctx.textBaseline = "middle";
+        ctx.filter = "drop-shadow(0 14px 18px rgba(0,0,0,0.35))";
+        ctx.fillText("🍫", 0, 0);
+        ctx.restore();
+      }
+
+      // ---- FPS adaptive spawn ----
+      let lastT = performance.now();
+      let fps = 60;
+      let spawnTimer = null;
+
+      function startSpawning(){
+        if (spawnTimer) clearInterval(spawnTimer);
+        spawnTimer = setInterval(() => {
+          for (let k=0;k<BALLS_PER_TICK;k++) spawnBallFromEdge();
+        }, SPAWN_EVERY_MS);
+      }
+      startSpawning();
+
+      function adaptSpawn(){
+        if (fps < 40){
+          BALLS_PER_TICK = Math.max(1, BALLS_PER_TICK - 1);
+          SPAWN_EVERY_MS = Math.min(900, SPAWN_EVERY_MS + 80);
+          startSpawning();
+        } else if (fps > 54){
+          BALLS_PER_TICK = Math.min(isMobile ? 2 : 3, BALLS_PER_TICK + 1);
+          SPAWN_EVERY_MS = Math.max(isMobile ? 480 : 380, SPAWN_EVERY_MS - 40);
+          startSpawning();
+        }
+      }
+      setInterval(adaptSpawn, 1500);
+
+      // ---- loop ----
+      function tick(){
+        const now = performance.now();
+        const dt = now - lastT;
+        lastT = now;
+        fps = 1000 / Math.max(1, dt);
+
+        ctx.clearRect(0,0,W,H);
+
+        for (const b of balls){
+          if (b.dead) continue;
+
+          b.vy += GRAVITY;
+          b.vx *= FRICTION;
+          b.vy *= FRICTION;
+
+          b.x += b.vx;
+          b.y += b.vy;
+
+          bounceInBox(b);
+
+          if (now - b.born > BALL_LIFETIME_MS) b.dead = true;
+        }
+
+        for (let i=balls.length-1;i>=0;i--){
+          if (balls[i].dead) balls.splice(i,1);
+        }
+
+        buildGrid();
+        checkCollisionsGrid();
+
+        for (let i=chocs.length-1;i>=0;i--){
+          const c = chocs[i];
+          c.vy += 0.06;
+          c.x += c.vx;
+          c.y += c.vy;
+          c.rot += c.vr;
+
+          if (c.y > H + 140 || (now - c.born > 12000)) chocs.splice(i,1);
+        }
+
+        for (const c of chocs) drawChocolate(c);
+        for (const b of balls) drawBall(b);
+
+        requestAnimationFrame(tick);
+      }
+      requestAnimationFrame(tick);
+
+      // initial burst
+      for (let i=0;i<(isMobile ? 14 : 26);i++) spawnBallFromEdge();
+
+      // tap adds a few (still capped)
+      window.addEventListener("pointerdown", () => {
+        for (let i=0;i<(isMobile ? 3 : 6);i++) spawnBallFromEdge();
+      }, {passive:true});
+    }
+  </script>
+</body>
+</html>
