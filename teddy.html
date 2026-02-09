@@ -1,36 +1,301 @@
-<!doctype html><html lang="en"><head>
-<meta charset="utf-8"/><meta name="viewport" content="width=device-width, initial-scale=1"/>
-<title>🧸 Teddy Day</title>
-<style>
-body{margin:0;min-height:100vh;display:grid;place-items:center;padding:24px;font-family:system-ui;color:#fff;
-background: radial-gradient(900px 500px at 20% 20%, rgba(255,77,141,0.18), transparent 60%),
-linear-gradient(180deg,#0b1020,#1a0b2e);}
-.card{width:min(860px,100%);border-radius:22px;padding:22px;background:rgba(255,255,255,0.08);
-border:1px solid rgba(255,255,255,0.14);backdrop-filter:blur(10px);}
-h1{margin:0 0 10px;font-size:34px;letter-spacing:-0.02em;}
-p{margin:0;color:rgba(255,255,255,0.78);line-height:1.6;}
-.btn{margin-top:16px;display:inline-block;text-decoration:none;color:#fff;font-weight:800;
-padding:12px 14px;border-radius:14px;background:rgba(255,255,255,0.10);border:1px solid rgba(255,255,255,0.14);}
-.hidden{display:none;}
-</style></head><body>
-<div class="card">
-  <div id="locked" class="hidden">
-    <h1>Not so early 😌</h1>
-    <p>Unlocks on <b>Feb 10</b>. No teddy before time 🧸</p>
-    <a class="btn" href="./index.html">⬅ Back</a>
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>🧸 Teddy Day</title>
+
+  <style>
+    :root{
+      --bg1:#0b1020;
+      --bg2:#1a0b2e;
+      --card: rgba(255,255,255,0.10);
+      --stroke: rgba(255,255,255,0.18);
+      --text:#f8f7ff;
+      --muted: rgba(248,247,255,0.80);
+      --shadow: 0 30px 80px rgba(0,0,0,0.55);
+      --accent:#ff4d8d;
+      --accent2:#8b5cf6;
+    }
+
+    *{ box-sizing:border-box; }
+
+    body{
+      margin:0;
+      min-height:100vh;
+      font-family: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial;
+      color:var(--text);
+      background:
+        radial-gradient(900px 600px at 20% 20%, rgba(255,77,141,0.18), transparent 60%),
+        radial-gradient(700px 500px at 80% 25%, rgba(139,92,246,0.20), transparent 60%),
+        linear-gradient(180deg, var(--bg1), var(--bg2));
+      display:grid;
+      place-items:center;
+      padding:24px;
+      overflow:hidden;
+    }
+
+    .card{
+      width:min(960px,100%);
+      background: linear-gradient(180deg, var(--card), rgba(255,255,255,0.06));
+      border:1px solid var(--stroke);
+      border-radius:28px;
+      box-shadow:var(--shadow);
+      overflow:hidden;
+      backdrop-filter: blur(12px);
+      position:relative;
+      z-index:2;
+    }
+
+    .hidden{ display:none; }
+
+    /* LOCKED */
+    .locked{
+      padding:32px 26px;
+      text-align:center;
+    }
+    .locked h1{
+      margin:0 0 12px;
+      font-size:34px;
+      letter-spacing:-0.02em;
+    }
+    .locked p{
+      color:var(--muted);
+      font-size:18px;
+      line-height:1.6;
+      margin:0;
+    }
+    .btn{
+      margin-top:18px;
+      display:inline-block;
+      text-decoration:none;
+      color:#fff;
+      font-weight:800;
+      padding:12px 20px;
+      border-radius:999px;
+      background: rgba(255,255,255,0.12);
+      border:1px solid rgba(255,255,255,0.18);
+    }
+
+    /* UNLOCKED */
+    .scene{
+      position:relative;
+      min-height: 86vh;
+      display:flex;
+      flex-direction:column;
+      justify-content:flex-end;
+    }
+
+    /* Background image */
+    .bg{
+      position:absolute;
+      inset:0;
+      background:
+        linear-gradient(to bottom, rgba(0,0,0,0.18), rgba(0,0,0,0.72)),
+        url("./assets/images/me_teddy.png") center / cover no-repeat;
+      transform: scale(1.02);
+      filter: saturate(1.05);
+    }
+
+    /* Soft glow */
+    .glow{
+      position:absolute;
+      inset:-20%;
+      background:
+        radial-gradient(520px 360px at 30% 25%, rgba(255,77,141,0.18), transparent 65%),
+        radial-gradient(520px 360px at 70% 25%, rgba(139,92,246,0.18), transparent 65%);
+      animation: glowPulse 5.5s ease-in-out infinite;
+      pointer-events:none;
+      z-index:1;
+    }
+    @keyframes glowPulse{
+      0%,100% { opacity:0.65; transform: scale(1); }
+      50%     { opacity:0.95; transform: scale(1.03); }
+    }
+
+    /* Text content */
+    .content{
+      position:relative;
+      z-index:3;
+      padding:26px 22px 30px;
+      text-align:center;
+    }
+
+    h1{
+      margin:0;
+      font-size: clamp(34px, 6vw, 54px);
+      letter-spacing:-0.03em;
+      text-shadow: 0 18px 50px rgba(0,0,0,0.55);
+    }
+    .sub{
+      margin:12px auto 0;
+      max-width: 720px;
+      color: rgba(248,247,255,0.80);
+      line-height:1.6;
+      font-size: 16px;
+      text-shadow: 0 10px 30px rgba(0,0,0,0.35);
+    }
+    .hint{
+      margin-top: 10px;
+      font-size: 13px;
+      color: rgba(248,247,255,0.70);
+      text-shadow: 0 10px 30px rgba(0,0,0,0.35);
+    }
+
+    /* Falling layer */
+    .fallLayer{
+      position:absolute;
+      inset:0;
+      overflow:hidden;
+      pointer-events:none;
+      z-index:2; /* above bg, below text */
+    }
+
+    .teddy{
+      position:absolute;
+      top:-140px;
+      width: var(--size, 72px);
+      height: auto;
+      opacity: 0.95;
+      filter: drop-shadow(0 16px 22px rgba(0,0,0,0.35));
+      will-change: transform, opacity;
+      animation: fallTeddy linear forwards;
+    }
+
+    @keyframes fallTeddy{
+      0%   { transform: translate3d(0,-40px,0) rotate(0deg); opacity:0; }
+      10%  { opacity: 1; }
+      100% { transform: translate3d(var(--drift, 0px), 110vh, 0) rotate(var(--rot, 220deg)); opacity: 0.98; }
+    }
+
+    /* Mobile full screen */
+    @media (max-width:600px){
+      body{ padding:0; place-items:stretch; }
+      .card{ border-radius:0; min-height:100vh; }
+      .content{ padding:18px 16px 26px; }
+      .scene{ min-height:100vh; }
+    }
+  </style>
+</head>
+
+<body>
+  <div class="card">
+
+    <!-- LOCKED -->
+    <div id="locked" class="locked hidden">
+      <h1>Not so early 😌</h1>
+      <p>
+        This surprise unlocks on <b>Feb 10</b>.<br/>
+        Come back when the teddy rain starts 🧸
+      </p>
+      <a class="btn" href="./index.html">⬅ Back</a>
+    </div>
+
+    <!-- UNLOCKED -->
+    <div id="unlocked" class="hidden">
+      <div class="scene">
+        <div class="bg"></div>
+        <div class="glow"></div>
+
+        <div class="fallLayer" id="fallLayer"></div>
+
+        <div class="content">
+          <h1>Teddy Day 🧸</h1>
+          <p class="sub">
+            If I could, I’d send you one teddy for every time you made me smile…
+            but this is the internet, so I’m sending a whole teddy rain.
+          </p>
+          <div class="hint">They’ll keep falling… because my love has no stop button 😌</div>
+        </div>
+      </div>
+    </div>
+
   </div>
-  <div id="unlocked" class="hidden">
-    <h1>Teddy Day 🧸</h1>
-    <p>Idea: show a cute “virtual teddy” animation or her photo with a teddy sticker.</p>
-    <a class="btn" href="./index.html">⬅ Back</a>
-  </div>
-</div>
-<script>
-const UNLOCK_MONTH=2, UNLOCK_DAY=10;
-const debug = localStorage.getItem("vday_debug")==="1";
-const year=new Date().getFullYear();
-const unlockDate=new Date(year,UNLOCK_MONTH-1,UNLOCK_DAY,0,0,0,0);
-const ok = debug || (Date.now()>=unlockDate.getTime());
-document.getElementById(ok?"unlocked":"locked").classList.remove("hidden");
-</script>
-</body></html>
+
+  <script>
+    // =========================
+    // DATE + DEBUG GATE
+    // =========================
+    const UNLOCK_MONTH = 2, UNLOCK_DAY = 10; // Feb 10
+    const debug = localStorage.getItem("vday_debug") === "1";
+
+    function show(id){
+      document.getElementById(id).classList.remove("hidden");
+    }
+
+    if (debug){
+      show("unlocked");
+    } else {
+      const now = new Date();
+      const year = now.getFullYear();
+      const unlockDate = new Date(year, UNLOCK_MONTH - 1, UNLOCK_DAY, 0, 0, 0, 0);
+      show(now.getTime() >= unlockDate.getTime() ? "unlocked" : "locked");
+    }
+
+    // =========================
+    // TEDDY RAIN (AUTO)
+    // =========================
+    const TEDDY_IMAGES = [
+     "./assets/images/download (3).jpeg",
+      "./assets/images/download (4).jpeg",
+      "./assets/images/download (5).jpeg",
+      "./assets/images/download (6).jpeg",
+      "./assets/images/download (7).jpeg",
+      "./assets/images/download (8).jpeg",
+      "./assets/images/images.jpeg"
+    ];
+
+    const layer = document.getElementById("fallLayer");
+
+    // Performance knobs (mobile friendly)
+    const MAX_ON_SCREEN = 22;
+    const BASE_INTERVAL = 520; // ms
+    let timer = null;
+
+    function spawnOne(){
+      if (!layer) return;
+      if (layer.childElementCount >= MAX_ON_SCREEN) return;
+
+      const img = document.createElement("img");
+      img.className = "teddy";
+      img.src = TEDDY_IMAGES[Math.floor(Math.random() * TEDDY_IMAGES.length)];
+      img.alt = "teddy";
+
+      const x = Math.random() * window.innerWidth;
+      const size = 44 + Math.random() * 48;           // 44..92
+      const drift = (Math.random() * 2 - 1) * 180;    // -180..180
+      const rot = (140 + Math.random() * 360) + "deg";
+      const duration = 4.2 + Math.random() * 3.2;     // 4.2..7.4
+
+      img.style.left = x + "px";
+      img.style.setProperty("--size", size + "px");
+      img.style.setProperty("--drift", drift + "px");
+      img.style.setProperty("--rot", rot);
+      img.style.animationDuration = duration + "s";
+
+      layer.appendChild(img);
+      setTimeout(() => img.remove(), duration * 1000 + 220);
+    }
+
+    function startRain(){
+      if (!layer || timer) return;
+
+      // initial burst
+      for (let i=0;i<10;i++) spawnOne();
+
+      timer = setInterval(() => {
+        // light but continuous
+        spawnOne();
+        if (Math.random() < 0.35) spawnOne(); // occasional double spawn
+      }, BASE_INTERVAL);
+    }
+
+    // Start only if unlocked is visible
+    const unlockedVisible =
+      document.getElementById("unlocked") &&
+      !document.getElementById("unlocked").classList.contains("hidden");
+
+    if (unlockedVisible) startRain();
+  </script>
+</body>
+</html>
