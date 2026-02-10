@@ -1,36 +1,353 @@
-<!doctype html><html lang="en"><head>
-<meta charset="utf-8"/><meta name="viewport" content="width=device-width, initial-scale=1"/>
-<title>🤞 Promise Day</title>
-<style>
-body{margin:0;min-height:100vh;display:grid;place-items:center;padding:24px;font-family:system-ui;color:#fff;
-background: radial-gradient(900px 500px at 20% 20%, rgba(139,92,246,0.18), transparent 60%),
-linear-gradient(180deg,#0b1020,#1a0b2e);}
-.card{width:min(860px,100%);border-radius:22px;padding:22px;background:rgba(255,255,255,0.08);
-border:1px solid rgba(255,255,255,0.14);backdrop-filter:blur(10px);}
-h1{margin:0 0 10px;font-size:34px;letter-spacing:-0.02em;}
-p{margin:0;color:rgba(255,255,255,0.78);line-height:1.6;}
-.btn{margin-top:16px;display:inline-block;text-decoration:none;color:#fff;font-weight:800;
-padding:12px 14px;border-radius:14px;background:rgba(255,255,255,0.10);border:1px solid rgba(255,255,255,0.14);}
-.hidden{display:none;}
-</style></head><body>
-<div class="card">
-  <div id="locked" class="hidden">
-    <h1>Not so early 😌</h1>
-    <p>Unlocks on <b>Feb 11</b>. Promises need the right moment 🤞</p>
-    <a class="btn" href="./index.html">⬅ Back</a>
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>🤞 Promise Day</title>
+
+  <style>
+    :root{
+      --text:#f8f7ff;
+      --gold:#fbbf24;
+      --shadow: 0 30px 80px rgba(0,0,0,0.55);
+      --stroke: rgba(255,255,255,0.18);
+      --glass: rgba(0,0,0,0.45);
+    }
+
+    *{ box-sizing:border-box; }
+    html,body{ height:100%; margin:0; }
+
+    body{
+      overflow:hidden;
+      background: #070814;
+      color: var(--text);
+      font-family: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial;
+    }
+
+    /* ===== FULL SCREEN IMAGE (TOP ALIGNED, NO CUTS) ===== */
+    .bg{
+      position: fixed;
+      inset: 0;
+      z-index: 0;
+      background: #070814;
+      display: grid;
+      place-items: start center; /* ✅ start from top */
+    }
+
+    /* blurred fill behind so empty sides look nice on wide screens */
+    .bg::before{
+      content:"";
+      position:absolute;
+      inset:-30px;
+      background-image: url("./assets/images/promise.png");
+      background-size: cover;
+      background-position: top center; /* ✅ top aligned */
+      filter: blur(18px) saturate(1.1);
+      opacity: 0.55;
+      transform: scale(1.05);
+    }
+
+    .bg img{
+      position: relative;
+      z-index: 1;
+      width: 100%;
+      height: 100%;
+      object-fit: contain;        /* ✅ no cut */
+      object-position: top center; /* ✅ show from top */
+    }
+
+    /* ===== A–Z RAIN ===== */
+    .rain{
+      position: fixed;
+      inset: 0;
+      pointer-events:none;
+      overflow:hidden;
+      z-index: 2;
+    }
+    .drop{
+      position:absolute;
+      top:-40px;
+      font-weight: 900;
+      font-size: 16px;
+      opacity: 0;
+      color: rgba(251,191,36,0.75);
+      text-shadow: 0 14px 24px rgba(0,0,0,0.35);
+      animation: fall linear forwards;
+      will-change: transform, opacity;
+    }
+    @keyframes fall{
+      0%   { transform: translate3d(0,0,0); opacity: 0; }
+      10%  { opacity: 0.95; }
+      100% { transform: translate3d(var(--dx,0px), 110vh, 0); opacity: 0.95; }
+    }
+
+    /* flying letter that "attaches" to poem */
+    .attachDrop{
+      position: fixed;
+      font-weight: 900;
+      color: rgba(251,191,36,0.92);
+      text-shadow: 0 14px 24px rgba(0,0,0,0.45);
+      z-index: 5;
+      pointer-events: none;
+      will-change: transform, opacity;
+    }
+
+    /* ===== SMALLER BOTTOM CONTAINER (POEM) ===== */
+    .poemBar{
+      position: fixed;
+      left: 16px;
+      right: 16px;
+      bottom: 12px;               /* ✅ less gap from bottom */
+      z-index: 4;
+      border-radius: 20px;        /* ✅ slightly tighter */
+      background: var(--glass);
+      border: 1px solid var(--stroke);
+      box-shadow: var(--shadow);
+      backdrop-filter: blur(12px);
+      overflow: hidden;
+      padding: 12px 14px 14px;    /* ✅ reduced padding */
+      max-width: 980px;
+      margin: 0 auto;
+
+      /* ✅ key: keep box from covering image */
+      max-height: 44vh;           /* adjust 40–50vh as you like */
+      display: flex;
+      flex-direction: column;
+    }
+
+    .poemBar::before{
+      content:"";
+      position:absolute;
+      inset:0;
+      background:
+        radial-gradient(700px 420px at 25% 20%, rgba(251,191,36,0.14), transparent 62%),
+        radial-gradient(700px 420px at 80% 30%, rgba(255,77,141,0.12), transparent 62%),
+        linear-gradient(to bottom, rgba(0,0,0,0.25), rgba(0,0,0,0.55));
+      z-index: 0;
+    }
+
+    .poemInner{
+      position: relative;
+      z-index: 1;
+      display: flex;
+      flex-direction: column;
+      height: 100%;
+      min-height: 0;
+    }
+
+    .poemTitle{
+      text-align:center;
+      font-weight: 950;
+      letter-spacing: 0.02em;
+      margin-bottom: 8px;
+      font-size: 13px;            /* ✅ smaller */
+      opacity: 0.95;
+      flex: 0 0 auto;
+    }
+
+    .divider{
+      margin: 8px auto 10px;      /* ✅ reduced */
+      width: 170px;               /* ✅ slightly smaller */
+      height: 2px;
+      background: linear-gradient(90deg, transparent, rgba(251,191,36,0.95), transparent);
+      flex: 0 0 auto;
+    }
+
+    .poemText{
+      white-space: pre-wrap;
+      text-align:center;
+      font-family: ui-serif, Georgia, "Times New Roman", serif;
+      font-size: 15px;            /* ✅ reduced text size */
+      line-height: 1.55;          /* ✅ reduced line gap */
+      color: rgba(248,247,255,0.94);
+      text-shadow: 0 12px 35px rgba(0,0,0,0.25);
+
+      /* ✅ allow scrolling instead of growing */
+      overflow: auto;
+      padding-right: 6px;
+      flex: 1 1 auto;
+      min-height: 0;
+    }
+
+    /* make bottom box adapt on small screens */
+    @media (max-width: 600px){
+      .poemBar{
+        left: 12px; right: 12px; bottom: 10px;
+        padding: 10px 12px 12px;
+        max-height: 46vh;         /* still keeps image visible */
+      }
+      .poemTitle{ font-size: 12px; }
+      .poemText{ font-size: 14px; line-height: 1.5; }
+      .divider{ width: 150px; margin: 7px auto 9px; }
+    }
+  </style>
+</head>
+
+<body>
+  <!-- Fullscreen image -->
+  <div class="bg">
+    <img src="./assets/images/promise.png" alt="Promise image" />
   </div>
-  <div id="unlocked" class="hidden">
-    <h1>Promise Day 🤞</h1>
-    <p>Idea: show 3 promises as “checkboxes” she can tap (purely cute).</p>
-    <a class="btn" href="./index.html">⬅ Back</a>
+
+  <!-- Letters rain -->
+  <div class="rain" id="rain"></div>
+
+  <!-- Bottom poem container -->
+  <div class="poemBar" id="poemBar">
+    <div class="poemInner">
+      <div class="poemTitle">🤞 Promise Day • written by love</div>
+      <div class="divider"></div>
+      <div class="poemText" id="poemOut"></div>
+    </div>
   </div>
-</div>
-<script>
-const UNLOCK_MONTH=2, UNLOCK_DAY=11;
-const debug = localStorage.getItem("vday_debug")==="1";
-const year=new Date().getFullYear();
-const unlockDate=new Date(year,UNLOCK_MONTH-1,UNLOCK_DAY,0,0,0,0);
-const ok = debug || (Date.now()>=unlockDate.getTime());
-document.getElementById(ok?"unlocked":"locked").classList.remove("hidden");
-</script>
-</body></html>
+
+  <script>
+    // =========================
+    // A–Z RAIN (background)
+    // =========================
+    const rain = document.getElementById("rain");
+    const letters = "ABCDEFGHIJKLMNOPQRSTUVWXYZ".split("");
+
+    function spawnDrop(){
+      if (!rain) return;
+
+      const el = document.createElement("div");
+      el.className = "drop";
+      el.textContent = letters[(Math.random()*letters.length) | 0];
+
+      const x = Math.random() * window.innerWidth;
+      const dx = (Math.random()*2 - 1) * 140;
+      const size = 12 + Math.random()*18;
+      const dur = 3600 + Math.random()*3200;
+
+      el.style.left = x + "px";
+      el.style.fontSize = size + "px";
+      el.style.setProperty("--dx", dx + "px");
+      el.style.animationDuration = dur + "ms";
+
+      rain.appendChild(el);
+      setTimeout(() => el.remove(), dur + 250);
+    }
+
+    let rainTimer = null;
+    function startRain(){
+      if (rainTimer) return;
+      for(let i=0;i<10;i++) setTimeout(spawnDrop, i*140);
+      rainTimer = setInterval(spawnDrop, 170);
+    }
+
+    // =========================
+    // POEM (assembled by falling letters)
+    // =========================
+    const poemLines = [
+      "Baby, I promise I’ll stay with you always, just as I said—I have my own ways,",
+      "Ways of loving you quietly, deeply, through all our days.",
+      "",
+      "I’ll never let you down, not in sunshine or in rain,",
+      "I promise to stand by you, through joy, through pain.",
+      "",
+      "I promise to help fulfill your dreams, whatever they may be,",
+      "Lawn tennis, ballet, or guitar—every hope you see.",
+      "",
+      "Baby, I promise to take care of you like nothing else,",
+      "With all my heart, my soul, my love—more than even myself. 💛"
+    ];
+
+    const poemOut = document.getElementById("poemOut");
+
+    let typing = false;
+    let stopFlag = false;
+
+    function sleep(ms){ return new Promise(r => setTimeout(r, ms)); }
+
+    async function attachChar(targetSpan, finalChar){
+      const rect = targetSpan.getBoundingClientRect();
+      const startX = rect.left + rect.width/2;
+      const startY = -40;
+
+      const d = document.createElement("div");
+      d.className = "attachDrop";
+      d.textContent = letters[(Math.random()*letters.length) | 0];
+
+      const computed = window.getComputedStyle(targetSpan);
+      d.style.fontSize = computed.fontSize;
+
+      d.style.left = startX + "px";
+      d.style.top = startY + "px";
+      d.style.opacity = "0.95";
+
+      document.body.appendChild(d);
+
+      const endX = rect.left;
+      const endY = rect.top;
+
+      const dur = 130 + Math.random()*110;
+
+      d.animate([
+        { transform: `translate3d(0,0,0)`, opacity: 0.0 },
+        { opacity: 1.0, offset: 0.20 },
+        { transform: `translate3d(${(endX - startX)}px, ${(endY - startY)}px, 0)`, opacity: 1.0 }
+      ], { duration: dur, easing: "cubic-bezier(.18,.8,.22,1)", fill: "forwards" });
+
+      await sleep(dur);
+
+      targetSpan.textContent = finalChar;
+      targetSpan.style.opacity = "1";
+      d.remove();
+    }
+
+    async function writePoem(){
+      if (!poemOut || typing) return;
+      typing = true;
+      stopFlag = false;
+
+      poemOut.textContent = "";
+      startRain();
+
+      for (const line of poemLines){
+        if (stopFlag) break;
+
+        const lineNode = document.createElement("div");
+        poemOut.appendChild(lineNode);
+
+        if (line === ""){
+          lineNode.innerHTML = "&nbsp;";
+          await sleep(600);
+          continue;
+        }
+
+        const spans = [];
+        for (let i=0; i<line.length; i++){
+          const s = document.createElement("span");
+          s.textContent = " ";
+          s.style.opacity = "0";
+          lineNode.appendChild(s);
+          spans.push(s);
+        }
+
+        await sleep(80);
+
+        for (let i=0; i<line.length; i++){
+          if (stopFlag) break;
+
+          const ch = line[i];
+          await attachChar(spans[i], ch);
+
+          // ✅ fixed delay (was 0.001ms)
+          let delay = 55 + Math.random()*35; // 55–90ms
+          if (ch === "," || ch === "—") delay += 90;
+          if (ch === ".") delay += 140;
+
+          await sleep(delay);
+        }
+
+        await sleep(120);
+      }
+
+      typing = false;
+    }
+
+    writePoem();
+  </script>
+</body>
+</html>
