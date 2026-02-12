@@ -1,36 +1,718 @@
-<!doctype html><html lang="en"><head>
-<meta charset="utf-8"/><meta name="viewport" content="width=device-width, initial-scale=1"/>
-<title>😘 Kiss Day</title>
-<style>
-body{margin:0;min-height:100vh;display:grid;place-items:center;padding:24px;font-family:system-ui;color:#fff;
-background: radial-gradient(900px 500px at 20% 20%, rgba(255,77,141,0.20), transparent 60%),
-linear-gradient(180deg,#0b1020,#1a0b2e);}
-.card{width:min(860px,100%);border-radius:22px;padding:22px;background:rgba(255,255,255,0.08);
-border:1px solid rgba(255,255,255,0.14);backdrop-filter:blur(10px);}
-h1{margin:0 0 10px;font-size:34px;letter-spacing:-0.02em;}
-p{margin:0;color:rgba(255,255,255,0.78);line-height:1.6;}
-.btn{margin-top:16px;display:inline-block;text-decoration:none;color:#fff;font-weight:800;
-padding:12px 14px;border-radius:14px;background:rgba(255,255,255,0.10);border:1px solid rgba(255,255,255,0.14);}
-.hidden{display:none;}
-</style></head><body>
-<div class="card">
-  <div id="locked" class="hidden">
-    <h1>Not so early 😌</h1>
-    <p>Unlocks on <b>Feb 13</b>. No kisses before time 😘</p>
-    <a class="btn" href="./index.html">⬅ Back</a>
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+  <title>💋 Kiss Day</title>
+
+  <style>
+    :root{
+      --bg1:#16062a;          /* deep purple */
+      --bg2:#2a0b3f;          /* plum */
+      --pink:#ff4da6;         /* neon pink */
+      --violet:#8b5cf6;       /* violet */
+      --rose:#ff7bd6;         /* soft pink */
+      --text:#fff7ff;
+      --muted: rgba(255,247,255,0.78);
+      --glass: rgba(0,0,0,0.35);
+      --stroke: rgba(255,255,255,0.14);
+      --shadow: 0 24px 80px rgba(0,0,0,0.55);
+    }
+
+    *{ box-sizing:border-box; }
+    html,body{ height:100%; margin:0; }
+
+    body{
+      color:var(--text);
+      font-family: ui-serif, Georgia, "Times New Roman", serif;
+      overflow:hidden;
+      background:
+        radial-gradient(900px 600px at 20% 10%, rgba(255,77,166,0.25), transparent 60%),
+        radial-gradient(900px 700px at 80% 90%, rgba(139,92,246,0.22), transparent 60%),
+        linear-gradient(140deg, var(--bg1), var(--bg2));
+    }
+
+    /* subtle stars */
+    .stars{
+      position:fixed; inset:0; pointer-events:none; opacity:0.25;
+      background-image:
+        radial-gradient(2px 2px at 20px 30px, rgba(255,255,255,0.9), transparent 60%),
+        radial-gradient(1px 1px at 140px 90px, rgba(255,255,255,0.8), transparent 60%),
+        radial-gradient(1px 1px at 240px 160px, rgba(255,255,255,0.7), transparent 60%),
+        radial-gradient(2px 2px at 340px 220px, rgba(255,255,255,0.75), transparent 60%),
+        radial-gradient(1px 1px at 60px 210px, rgba(255,255,255,0.65), transparent 60%),
+        radial-gradient(1px 1px at 420px 40px, rgba(255,255,255,0.7), transparent 60%),
+        radial-gradient(2px 2px at 520px 180px, rgba(255,255,255,0.75), transparent 60%);
+      background-size: 600px 300px;
+      animation: drift 18s linear infinite;
+    }
+    @keyframes drift{ from{ transform:translateY(0);} to{ transform:translateY(-60px);} }
+
+    /* layout */
+    .wrap{
+      position:relative;
+      height:100%;
+      display:flex;
+      flex-direction:column;
+      padding: 18px 16px 18px;
+      gap: 14px;
+    }
+
+    header{
+      display:flex; align-items:center; justify-content:space-between;
+      padding: 10px 12px;
+      border-radius: 16px;
+      background: linear-gradient(90deg, rgba(255,77,166,0.14), rgba(139,92,246,0.14));
+      border: 1px solid var(--stroke);
+      backdrop-filter: blur(10px);
+      box-shadow: var(--shadow);
+    }
+    .title{
+      display:flex; flex-direction:column; gap:2px;
+      line-height:1.05;
+    }
+    .title h1{
+      margin:0;
+      font-size: 20px;
+      letter-spacing: 0.4px;
+    }
+    .title p{
+      margin:0;
+      font-size: 12px;
+      color: var(--muted);
+    }
+
+    .controls{
+      display:flex; align-items:center; gap:10px;
+    }
+    .btn{
+      cursor:pointer;
+      border:none;
+      padding: 9px 12px;
+      border-radius: 14px;
+      color:var(--text);
+      background: linear-gradient(90deg, rgba(255,77,166,0.9), rgba(139,92,246,0.9));
+      box-shadow: 0 10px 30px rgba(255,77,166,0.20);
+      font-weight:700;
+      font-family: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial;
+      font-size: 12px;
+      letter-spacing: 0.2px;
+      transition: transform .15s ease, filter .15s ease;
+      user-select:none;
+    }
+    .btn:active{ transform: scale(0.98); }
+    .btn.secondary{
+      background: rgba(255,255,255,0.08);
+      border: 1px solid var(--stroke);
+      box-shadow:none;
+      font-weight:600;
+    }
+
+    main{
+      flex:1;
+      display:grid;
+      grid-template-rows: 52% 48%;
+      gap: 14px;
+      min-height: 0;
+    }
+
+    /* ===== Slideshow ===== */
+    .slideshow{
+      position:relative;
+      border-radius: 22px;
+      overflow:hidden;
+      background: rgba(255,255,255,0.04);
+      border: 1px solid var(--stroke);
+      box-shadow: var(--shadow);
+      min-height: 0;
+    }
+    .slide{
+      position:absolute;
+      inset:0;
+      background-size: cover;
+      background-position: center;
+      opacity:0;
+      transform: scale(1.03);
+      transition: opacity 1.0s ease, transform 6s ease;
+      will-change: opacity, transform;
+      filter: saturate(1.05) contrast(1.02);
+    }
+    .slide.active{
+      opacity:1;
+      transform: scale(1.10);
+    }
+    .slideOverlay{
+      position:absolute; inset:0;
+      background:
+        radial-gradient(600px 300px at 20% 20%, rgba(255,77,166,0.20), transparent 60%),
+        radial-gradient(600px 300px at 80% 80%, rgba(139,92,246,0.18), transparent 60%),
+        linear-gradient(180deg, rgba(0,0,0,0.15), rgba(0,0,0,0.45));
+      pointer-events:none;
+    }
+    .kissStamp{
+      position:absolute;
+      top: 14px;
+      right: 14px;
+      padding: 8px 10px;
+      border-radius: 999px;
+      background: rgba(0,0,0,0.28);
+      border: 1px solid rgba(255,255,255,0.16);
+      backdrop-filter: blur(10px);
+      font-family: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial;
+      font-weight:700;
+      font-size: 12px;
+      color: rgba(255,247,255,0.95);
+      display:flex; align-items:center; gap:8px;
+    }
+    .dot{
+      width:7px; height:7px; border-radius:99px;
+      background: var(--rose);
+      box-shadow: 0 0 18px rgba(255,123,214,0.75);
+    }
+
+    /* ===== Poem ===== */
+    .poemCard{
+      border-radius: 22px;
+      background: rgba(0,0,0,0.30);
+      border: 1px solid var(--stroke);
+      box-shadow: var(--shadow);
+      padding: 14px 14px 16px;
+      overflow:hidden;
+      position:relative;
+      min-height: 0;
+    }
+    .poemCard:before{
+      content:"";
+      position:absolute; inset:-30px;
+      background: radial-gradient(500px 220px at 10% 10%, rgba(255,77,166,0.18), transparent 60%),
+                  radial-gradient(500px 220px at 90% 90%, rgba(139,92,246,0.16), transparent 60%);
+      pointer-events:none;
+    }
+    .poemHead{
+      position:relative;
+      display:flex; align-items:center; justify-content:space-between;
+      gap:10px;
+      margin-bottom: 10px;
+    }
+    .poemHead h2{
+      margin:0;
+      font-size: 16px;
+      letter-spacing: 0.3px;
+    }
+    .poemHead span{
+      font-family: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial;
+      font-size: 12px;
+      color: var(--muted);
+      white-space:nowrap;
+    }
+
+    .poemText{
+      position:relative;
+      font-size: 16px;
+      line-height: 1.55;
+      color: rgba(255,247,255,0.92);
+      height: calc(100% - 34px);
+      overflow:auto;
+      padding-right: 6px;
+      scroll-behavior:smooth;
+      -webkit-overflow-scrolling: touch;
+    }
+
+    /* letter styling */
+    .ch{
+      display:inline-block;
+      min-width: 0.1px;
+      transform: translateZ(0);
+      will-change: transform, filter, opacity;
+    }
+    .kiss{
+      filter: drop-shadow(0 0 10px rgba(255,77,166,0.25));
+    }
+    .revealed{
+      animation: popIn .22s ease both;
+    }
+    @keyframes popIn{
+      from{ transform: translateY(4px) scale(0.98); opacity:0.35; }
+      to{ transform: translateY(0) scale(1); opacity:1; }
+    }
+
+    .finalGlow{
+      display:inline;
+      padding: 2px 4px;
+      border-radius: 8px;
+      background: rgba(255,77,166,0.12);
+      box-shadow: 0 0 18px rgba(255,77,166,0.20);
+      border: 1px solid rgba(255,123,214,0.22);
+    }
+
+    /* ===== Floating kisses layer ===== */
+    .kissLayer{
+      position:fixed; inset:0;
+      pointer-events:none;
+      z-index: 0;
+      overflow:hidden;
+    }
+    .kfloat{
+      position:absolute;
+      bottom:-40px;
+      font-size: 22px;
+      opacity:0.0;
+      animation: floatUp linear forwards;
+      filter: drop-shadow(0 12px 20px rgba(255,77,166,0.12));
+      will-change: transform, opacity;
+    }
+    @keyframes floatUp{
+      0%   { transform: translate3d(0,0,0) rotate(0deg) scale(0.95); opacity:0; }
+      10%  { opacity:0.9; }
+      100% { transform: translate3d(var(--dx), calc(-1 * var(--dy)), 0) rotate(var(--rot)) scale(1.15); opacity:0; }
+    }
+
+    /* ===== Intro overlay ===== */
+    .intro{
+      position:fixed; inset:0;
+      display:grid;
+      place-items:center;
+      z-index: 50;
+      background:
+        radial-gradient(900px 600px at 30% 20%, rgba(255,77,166,0.22), transparent 60%),
+        radial-gradient(900px 700px at 70% 80%, rgba(139,92,246,0.20), transparent 60%),
+        linear-gradient(140deg, rgba(22,6,42,0.92), rgba(42,11,63,0.92));
+      backdrop-filter: blur(10px);
+      transition: opacity .6s ease, visibility .6s ease;
+    }
+    .intro.hidden{
+      opacity:0;
+      visibility:hidden;
+    }
+    .introCard{
+      width:min(560px, calc(100vw - 32px));
+      border-radius: 24px;
+      padding: 18px 16px 16px;
+      border: 1px solid rgba(255,255,255,0.14);
+      background: rgba(0,0,0,0.25);
+      box-shadow: var(--shadow);
+      text-align:center;
+      position:relative;
+      overflow:hidden;
+    }
+    .introCard:before{
+      content:"";
+      position:absolute; inset:-40px;
+      background:
+        radial-gradient(420px 220px at 20% 20%, rgba(255,77,166,0.22), transparent 60%),
+        radial-gradient(420px 220px at 80% 80%, rgba(139,92,246,0.18), transparent 60%);
+      pointer-events:none;
+    }
+    .introCard h3{
+      position:relative;
+      margin:0;
+      font-family: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial;
+      font-size: 18px;
+      letter-spacing: .3px;
+    }
+    .introCard p{
+      position:relative;
+      margin: 8px 0 14px;
+      color: var(--muted);
+      font-family: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial;
+      font-size: 13px;
+      line-height:1.35;
+    }
+    .tapHint{
+      position:relative;
+      display:flex; gap:10px;
+      justify-content:center;
+      flex-wrap:wrap;
+    }
+
+    /* mobile tweaks */
+    @media (max-width: 420px){
+      main{ grid-template-rows: 50% 50%; }
+      .poemText{ font-size: 15px; }
+      .title h1{ font-size: 18px; }
+    }
+
+    /* keep content above floating kisses */
+    header, main{ position:relative; z-index: 2; }
+  </style>
+</head>
+
+<body>
+  <div class="stars"></div>
+  <div class="kissLayer" id="kissLayer"></div>
+
+  <!-- INTRO overlay (tap to enable audio on mobile) -->
+  <div class="intro" id="intro">
+    <div class="introCard">
+      <h3>💋 Kiss Day</h3>
+      <p>Tap “Start” so the music can play — then let the kisses float and the poem reveal… slowly, softly. 💜💗</p>
+      <div class="tapHint">
+        <button class="btn" id="startBtn">Start</button>
+        <button class="btn secondary" id="muteBtn">Mute</button>
+      </div>
+    </div>
   </div>
-  <div id="unlocked" class="hidden">
-    <h1>Kiss Day 😘</h1>
-    <p>Idea: show a “loading kiss” progress bar that completes and reveals a cute line.</p>
-    <a class="btn" href="./index.html">⬅ Back</a>
+
+  <!-- Background audio -->
+  <audio id="bgAudio" loop preload="auto">
+    <!-- CHANGE THIS PATH -->
+    <source src="assets/audio/kissday.mp3" type="audio/mpeg" />
+  </audio>
+
+  <div class="wrap">
+    <header>
+      <div class="title">
+        <h1>💜💗 Kiss Day</h1>
+        <p>Slow love. Soft kisses. A forever that grows gently.</p>
+      </div>
+
+      <div class="controls">
+        <button class="btn secondary" id="replayPoem">Replay Poem</button>
+        <button class="btn" id="toggleAudio">Play</button>
+      </div>
+    </header>
+
+    <main>
+      <!-- Slideshow -->
+      <section class="slideshow" aria-label="Slideshow">
+        <div class="kissStamp"><span class="dot"></span> slow & steady</div>
+        <div class="slideOverlay"></div>
+        <!-- slides injected by JS -->
+      </section>
+
+      <!-- Poem -->
+      <section class="poemCard">
+        <div class="poemHead">
+          <h2>💋 Cutest baby in the world</h2>
+          <span id="poemStatus">for you..</span>
+        </div>
+        <div class="poemText" id="poemBox" aria-label="Poem"></div>
+      </section>
+    </main>
   </div>
-</div>
-<script>
-const UNLOCK_MONTH=2, UNLOCK_DAY=13;
-const debug = localStorage.getItem("vday_debug")==="1";
-const year=new Date().getFullYear();
-const unlockDate=new Date(year,UNLOCK_MONTH-1,UNLOCK_DAY,0,0,0,0);
-const ok = debug || (Date.now()>=unlockDate.getTime());
-document.getElementById(ok?"unlocked":"locked").classList.remove("hidden");
-</script>
-</body></html>
+
+  <script>
+    // ==========================
+    // CONFIG — edit these paths
+    // ==========================
+    const IMAGES = [
+      "assets/images/kiss1.jpeg",
+      "assets/images/kiss2.jpeg",
+      "assets/images/kiss3.jpeg",
+      "assets/images/kiss4.jpeg",
+      "assets/images/kiss5.jpeg",
+      "assets/images/kiss6.jpeg",
+      "assets/images/kiss7.jpeg",
+      "assets/images/kiss8.jpeg",
+      "assets/images/kiss9.jpeg",
+      "assets/images/kiss10.jpeg",
+    ];
+
+    // Poem (kept exactly like you gave)
+    const POEM = [
+      "I don’t want to rush when we start making love",
+"I just want to hold you close and keep you near.",
+"You asked for a kiss, I gave it on your cheek,",
+"Because I want our love soft, not fast or quick.",
+"",
+"",
+"Let me stay a little longer in your arms tonight,",
+"Just you and me beneath the quiet light.",
+"Every kiss means more than words can say,",
+"And I just want us, slowly, this way. ",
+""
+    ].join("\n");
+
+    // Performance knobs (mobile friendly)
+    const KISS_SPAWN_RATE_MS = 520;   // higher = fewer kisses
+    const KISS_MAX_ONSCREEN = 18;
+    const SLIDE_INTERVAL_MS = 3200;
+
+    // ==========================
+    // Helpers
+    // ==========================
+    const $ = (id) => document.getElementById(id);
+
+    const intro = $("intro");
+    const startBtn = $("startBtn");
+    const muteBtn = $("muteBtn");
+    const toggleAudio = $("toggleAudio");
+    const bgAudio = $("bgAudio");
+
+    const kissLayer = $("kissLayer");
+    const poemBox = $("poemBox");
+    const poemStatus = $("poemStatus");
+    const replayPoem = $("replayPoem");
+
+    const slideshow = document.querySelector(".slideshow");
+
+    let kissesOnScreen = 0;
+    let kissTimer = null;
+
+    let slideEls = [];
+    let slideIndex = 0;
+    let slideTimer = null;
+
+    let revealTimer = null;
+    let isMuted = false;
+
+    // ==========================
+    // Floating kisses
+    // ==========================
+    function spawnKiss(){
+      if (kissesOnScreen >= KISS_MAX_ONSCREEN) return;
+
+      const k = document.createElement("div");
+      k.className = "kfloat";
+      k.textContent = "💋";
+
+      const x = Math.random() * 100; // vw
+      const dx = (Math.random() * 120 - 60).toFixed(0) + "px";
+      const dy = (window.innerHeight + 120 + Math.random() * 220).toFixed(0) + "px";
+      const rot = (Math.random() * 90 - 45).toFixed(0) + "deg";
+      const dur = (7.5 + Math.random() * 4.0).toFixed(2) + "s";
+      const size = (18 + Math.random() * 14).toFixed(0) + "px";
+      const delay = (Math.random() * 0.8).toFixed(2) + "s";
+
+      k.style.left = x + "vw";
+      k.style.setProperty("--dx", dx);
+      k.style.setProperty("--dy", dy);
+      k.style.setProperty("--rot", rot);
+      k.style.animationDuration = dur;
+      k.style.animationDelay = delay;
+      k.style.fontSize = size;
+
+      kissesOnScreen++;
+      kissLayer.appendChild(k);
+
+      const cleanup = () => {
+        if (k && k.parentNode) k.parentNode.removeChild(k);
+        kissesOnScreen = Math.max(0, kissesOnScreen - 1);
+      };
+
+      k.addEventListener("animationend", cleanup, { once:true });
+      // safety cleanup if tab sleeps
+      setTimeout(cleanup, (parseFloat(dur) + parseFloat(delay) + 1) * 1000);
+    }
+
+    function startKisses(){
+      if (kissTimer) clearInterval(kissTimer);
+      kissTimer = setInterval(spawnKiss, KISS_SPAWN_RATE_MS);
+      // burst at start
+      for(let i=0;i<8;i++) setTimeout(spawnKiss, i*110);
+    }
+
+    // ==========================
+    // Slideshow
+    // ==========================
+    function buildSlides(){
+      IMAGES.forEach((src, i) => {
+        const s = document.createElement("div");
+        s.className = "slide" + (i === 0 ? " active" : "");
+        s.style.backgroundImage = `url('${src}')`;
+        slideshow.appendChild(s);
+        slideEls.push(s);
+      });
+    }
+
+    function nextSlide(){
+      if (!slideEls.length) return;
+      slideEls[slideIndex].classList.remove("active");
+      slideIndex = (slideIndex + 1) % slideEls.length;
+      slideEls[slideIndex].classList.add("active");
+    }
+
+    function startSlideshow(){
+      if (slideTimer) clearInterval(slideTimer);
+      slideTimer = setInterval(nextSlide, SLIDE_INTERVAL_MS);
+    }
+
+    // ==========================
+    // Poem reveal: 💋 -> letters
+    // ==========================
+    function escapeHtml(s){
+      return s.replace(/[&<>"']/g, (c) => ({
+        "&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#039;"
+      }[c]));
+    }
+
+    function preparePoem(){
+      poemBox.innerHTML = "";
+      poemStatus.textContent = "revealing…";
+
+      // Build spans for each character.
+      // Start as 💋 for any non-newline char.
+      const lines = POEM.split("\n");
+
+      lines.forEach((line, li) => {
+        // add line with spans
+        for (let i = 0; i < line.length; i++){
+          const ch = line[i];
+          const span = document.createElement("span");
+          span.className = "ch kiss";
+          span.dataset.real = ch;
+
+          // represent spaces as a "soft" kiss too (still turns into space)
+          span.textContent = "💋";
+          poemBox.appendChild(span);
+        }
+
+        // newline
+        if (li < lines.length - 1){
+          poemBox.appendChild(document.createElement("br"));
+        }
+      });
+
+      // Add final line glow wrapper after reveal finishes
+    }
+
+    function revealPoem(){
+      if (revealTimer) clearInterval(revealTimer);
+
+      const spans = poemBox.querySelectorAll(".ch");
+      let idx = 0;
+
+      // smooth scroll
+      poemBox.scrollTop = 0;
+
+      const step = () => {
+        if (idx >= spans.length){
+          poemStatus.textContent = "my bacha 💜";
+          glowFinalLine();
+          clearInterval(revealTimer);
+          revealTimer = null;
+          return;
+        }
+
+        const sp = spans[idx];
+        const real = sp.dataset.real;
+
+        // turn kiss into actual character
+        sp.classList.remove("kiss");
+        sp.textContent = real === " " ? "\u00A0" : real;
+        sp.classList.add("revealed");
+
+        // keep poem box autoscrolling gently
+        if (idx % 18 === 0){
+          poemBox.scrollTop = poemBox.scrollHeight;
+        }
+
+        idx++;
+      };
+
+      // Start with a tiny delay to feel magical
+      let speed = 22; // ms per char (mobile safe)
+      revealTimer = setInterval(step, speed);
+    }
+
+    function glowFinalLine(){
+      // Wrap the last line (final sentence) in a glow span.
+      // We'll find last <br> and wrap all nodes after it.
+      const nodes = Array.from(poemBox.childNodes);
+      let lastBrIndex = -1;
+      nodes.forEach((n, i) => { if (n.nodeName === "BR") lastBrIndex = i; });
+
+      // last line nodes
+      const lastLineNodes = nodes.slice(lastBrIndex + 1);
+      if (!lastLineNodes.length) return;
+
+      const wrapper = document.createElement("span");
+      wrapper.className = "finalGlow";
+
+      lastLineNodes.forEach(n => wrapper.appendChild(n));
+      poemBox.appendChild(document.createElement("br"));
+      poemBox.appendChild(wrapper);
+    }
+
+    // ==========================
+    // Audio controls (mobile-safe)
+    // ==========================
+    async function playAudio(){
+      try{
+        if (isMuted) return;
+        await bgAudio.play();
+        toggleAudio.textContent = "Pause";
+      }catch(e){
+        // autoplay blocked; user must tap start
+        toggleAudio.textContent = "Play";
+      }
+    }
+
+    function pauseAudio(){
+      bgAudio.pause();
+      toggleAudio.textContent = "Play";
+    }
+
+    function setMuted(m){
+      isMuted = m;
+      bgAudio.muted = m;
+      muteBtn.textContent = m ? "Unmute" : "Mute";
+      toggleAudio.textContent = (bgAudio.paused || m) ? "Play" : "Pause";
+    }
+
+    // ==========================
+    // Init
+    // ==========================
+    function startEverything(){
+      // hide intro
+      intro.classList.add("hidden");
+
+      // start kisses
+      startKisses();
+
+      // build slideshow
+      buildSlides();
+      startSlideshow();
+
+      // poem
+      preparePoem();
+      // small delay so UI is ready
+      setTimeout(revealPoem, 500);
+
+      // audio
+      playAudio();
+    }
+
+    startBtn.addEventListener("click", startEverything);
+
+    muteBtn.addEventListener("click", () => {
+      setMuted(!isMuted);
+      if (!isMuted) playAudio();
+      else pauseAudio();
+    });
+
+    toggleAudio.addEventListener("click", () => {
+      if (isMuted) { setMuted(false); }
+      if (bgAudio.paused) playAudio();
+      else pauseAudio();
+    });
+
+    replayPoem.addEventListener("click", () => {
+      if (revealTimer) clearInterval(revealTimer);
+      preparePoem();
+      setTimeout(revealPoem, 250);
+    });
+
+    // improve performance when tab hidden
+    document.addEventListener("visibilitychange", () => {
+      if (document.hidden){
+        if (kissTimer) clearInterval(kissTimer);
+        if (slideTimer) clearInterval(slideTimer);
+        if (revealTimer) clearInterval(revealTimer);
+      } else {
+        // resume (don’t force restart poem mid-way; user can replay)
+        startKisses();
+        startSlideshow();
+      }
+    });
+
+    // Optional: tap anywhere to create a tiny kiss burst
+    document.addEventListener("pointerdown", (e) => {
+      // avoid if intro visible
+      if (!intro.classList.contains("hidden")) return;
+      for(let i=0;i<3;i++) setTimeout(spawnKiss, i*60);
+    }, { passive:true });
+
+  </script>
+</body>
+</html>
