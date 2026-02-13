@@ -1,37 +1,590 @@
-<!doctype html><html lang="en"><head>
-<meta charset="utf-8"/><meta name="viewport" content="width=device-width, initial-scale=1"/>
-<title>💘 Valentine’s Day</title>
-<style>
-body{margin:0;min-height:100vh;display:grid;place-items:center;padding:24px;font-family:system-ui;color:#fff;
-background: radial-gradient(900px 500px at 20% 20%, rgba(255,77,141,0.22), transparent 60%),
-radial-gradient(700px 400px at 80% 30%, rgba(139,92,246,0.22), transparent 60%),
-linear-gradient(180deg,#0b1020,#1a0b2e);}
-.card{width:min(860px,100%);border-radius:22px;padding:22px;background:rgba(255,255,255,0.08);
-border:1px solid rgba(255,255,255,0.14);backdrop-filter:blur(10px);}
-h1{margin:0 0 10px;font-size:34px;letter-spacing:-0.02em;}
-p{margin:0;color:rgba(255,255,255,0.78);line-height:1.6;}
-.btn{margin-top:16px;display:inline-block;text-decoration:none;color:#fff;font-weight:800;
-padding:12px 14px;border-radius:14px;background:rgba(255,255,255,0.10);border:1px solid rgba(255,255,255,0.14);}
-.hidden{display:none;}
-</style></head><body>
-<div class="card">
-  <div id="locked" class="hidden">
-    <h1>Not so early 😌</h1>
-    <p>This unlocks on <b>Feb 14</b>. The final surprise is worth the wait 💘</p>
-    <a class="btn" href="./index.html">⬅ Back</a>
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Happy Valentine's Day GOGO 💕</title>
+
+  <style>
+    *{ margin:0; padding:0; box-sizing:border-box; }
+
+    body{
+      font-family:'Georgia', serif;
+      background-image: url('./assets/final.png');
+      background-size: cover;
+      background-position: center;
+      background-attachment: fixed;
+      background-repeat: no-repeat;
+      position: relative;
+      overflow-x:hidden;
+      min-height:100vh;
+    }
+    body::before{
+      content: '';
+      position: fixed;
+      inset: 0;
+      background: linear-gradient(135deg, rgba(255, 107, 157, 0.7) 0%, rgba(194, 57, 179, 0.7) 25%, rgba(255, 20, 147, 0.7) 50%, rgba(139, 0, 139, 0.7) 75%, rgba(255, 105, 180, 0.7) 100%);
+      background-size: 400% 400%;
+      animation: gradientShift 15s ease infinite;
+      z-index: -1;
+      pointer-events: none;
+    }
+    @keyframes gradientShift{
+      0%{ background-position:0% 50%; }
+      50%{ background-position:100% 50%; }
+      100%{ background-position:0% 50%; }
+    }
+
+    /* Tap to start overlay */
+    .tapOverlay{
+      position:fixed; inset:0;
+      display:flex; align-items:center; justify-content:center;
+      padding:24px;
+      background:rgba(0,0,0,.45);
+      backdrop-filter: blur(10px);
+      z-index:9999;
+    }
+    .tapBox{
+      width:min(520px, 100%);
+      background: rgba(255,255,255,.12);
+      border:2px solid #ffd700;
+      border-radius:20px;
+      padding:18px 16px;
+      text-align:center;
+      box-shadow: 0 16px 50px rgba(0,0,0,.35), 0 0 22px rgba(255,215,0,.25);
+    }
+    .tapBox h3{
+      font-size:18px;
+      color:#ffd700;
+      text-shadow: 0 0 10px #ffed4e, 0 0 20px #ffd700, 2px 2px 4px rgba(0,0,0,.5);
+      margin-bottom:8px;
+    }
+    .tapBox p{
+      color:rgba(255,255,255,.9);
+      font-size:14px;
+      line-height:1.5;
+      margin-bottom:14px;
+    }
+    .tapBox button{
+      width:min(320px, 100%);
+      padding:12px 16px;
+      border:none;
+      border-radius:16px;
+      cursor:pointer;
+      font-weight:bold;
+      font-size:15px;
+      color:#8b008b;
+      background:#ffd700;
+      box-shadow: 0 0 14px rgba(255,215,0,.35);
+    }
+    .tapBox button:active{ transform: translateY(1px); }
+
+    .container{
+      max-width: 900px;
+      margin: 0 auto;
+      padding: 14px 16px 22px;
+      position: relative;
+      z-index: 5;
+    }
+
+    /* Title */
+    .title-container{
+      position: relative;
+      height: 112px;
+      display:flex;
+      justify-content:center;
+      align-items:center;
+      margin-bottom: 6px;
+    }
+    .word{
+      position:absolute;
+      font-size: 34px;
+      font-weight:bold;
+      color:#ffd700;
+      text-shadow: 0 0 10px #ffed4e, 0 0 20px #ffd700, 2px 2px 4px rgba(0,0,0,0.5);
+      opacity:0;
+      transform: translateY(-200px);
+      animation: dropWord 1.15s ease-out forwards;
+      white-space:nowrap;
+      letter-spacing: 1px;
+    }
+    @keyframes dropWord{
+      0%{ opacity:0; transform:translateY(-200px); }
+      50%{ opacity:1; }
+      100%{ opacity:1; transform:translateY(0); }
+    }
+
+    /* Video */
+    .video-slot{
+      width: 100%;
+      display:flex;
+      justify-content:center;
+      margin: 0 0 8px;
+    }
+    .video-container{
+      width: 92%;
+      max-width: 700px;
+      background: transparent;
+      border-radius: 20px;
+      overflow:visible;
+
+      max-height: 0;
+      opacity: 0;
+      transform: translateY(-18px);
+      transition: max-height 700ms ease, opacity 700ms ease, transform 700ms ease;
+      position: relative;
+      padding: 0;
+    }
+    .video-container.show{
+      max-height: 800px;
+      opacity: 1;
+      transform: translateY(0);
+      padding: 0;
+    }
+    .video-container video{
+      width:100%;
+      border-radius:12px;
+      display:block;
+      background:#000;
+      margin-bottom: 10px;
+    }
+    .video-container video::-webkit-media-controls-panel {
+      display: flex !important;
+      opacity: 1 !important;
+    }
+    .video-container video::-webkit-media-controls {
+      display: flex !important;
+    }
+
+    .question{
+      text-align:center;
+      font-size: 26px;
+      color:#ffd700;
+      margin: 6px 0 12px;
+      font-weight:bold;
+      text-shadow: 0 0 10px #ffed4e, 0 0 20px #ffd700, 2px 2px 4px rgba(0,0,0,0.5);
+      opacity:0;
+    }
+    .question.show{
+      animation: fadeIn 0.9s ease-in 2.4s forwards;
+    }
+    @keyframes fadeIn{ to{ opacity:1; } }
+
+    /* Falling elements */
+    .falling-element{
+      position: fixed;
+      top:-60px;
+      font-size:30px;
+      animation: fall linear infinite;
+      pointer-events:none;
+      z-index: 1;
+      filter: drop-shadow(0 10px 18px rgba(0,0,0,.35));
+    }
+    @keyframes fall{
+      to{ top: 110vh; transform: rotate(360deg); }
+    }
+
+    /* Letter */
+    .letter-container{
+      background: rgba(255,255,255,0.15);
+      backdrop-filter: blur(10px);
+      border: 2px solid #ffd700;
+      padding: 22px;
+      border-radius: 20px;
+      box-shadow: 0 10px 30px rgba(0,0,0,0.28), 0 0 20px rgba(255,215,0,0.25);
+      margin-top: 10px;
+      opacity:0;
+      position:relative;
+      z-index:10;
+    }
+    .letter-container.show{
+      animation: fadeIn 1s ease-in 3.0s forwards;
+    }
+    .letter-text{
+      font-size: 16.5px;
+      line-height: 1.7;
+      color:#fff;
+      text-shadow: 1px 1px 2px rgba(0,0,0,0.5);
+      white-space: pre-wrap;
+      min-height: 280px;
+    }
+    .cursor{
+      display:inline-block;
+      width:2px;
+      height:1em;
+      background:#ffd700;
+      animation: blink 0.7s infinite;
+      vertical-align:middle;
+    }
+    @keyframes blink{
+      0%,50%{ opacity:1; }
+      51%,100%{ opacity:0; }
+    }
+
+    /* Fireworks */
+    .firework {
+      position: fixed;
+      width: 4px;
+      height: 4px;
+      border-radius: 50%;
+      z-index: 9998;
+    }
+    
+    .firework::before,
+    .firework::after {
+      content: '';
+      position: absolute;
+      width: 4px;
+      height: 4px;
+      border-radius: 50%;
+    }
+
+    @keyframes fireworkRocket {
+      0% {
+        bottom: 0;
+        opacity: 1;
+      }
+      100% {
+        bottom: 70%;
+        opacity: 0;
+      }
+    }
+
+    @keyframes fireworkExplosion {
+      0% {
+        box-shadow: 
+          0 0 0 3px #ffd700,
+          0 0 0 3px #ff1493,
+          0 0 0 3px #ff6b9d,
+          0 0 0 3px #c239b3,
+          0 0 0 3px #ffed4e,
+          0 0 0 3px #ff69b4;
+      }
+      20% {
+        box-shadow: 
+          0 -50px 0 8px #ffd700,
+          50px 0 0 8px #ff1493,
+          0 50px 0 8px #ff6b9d,
+          -50px 0 0 8px #c239b3,
+          35px -35px 0 8px #ffed4e,
+          -35px 35px 0 8px #ff69b4,
+          35px 35px 0 8px #ffd700,
+          -35px -35px 0 8px #ff1493;
+      }
+      40% {
+        box-shadow: 
+          0 -80px 0 6px #ffd700,
+          80px 0 0 6px #ff1493,
+          0 80px 0 6px #ff6b9d,
+          -80px 0 0 6px #c239b3,
+          56px -56px 0 6px #ffed4e,
+          -56px 56px 0 6px #ff69b4,
+          56px 56px 0 6px #ffd700,
+          -56px -56px 0 6px #ff1493,
+          0 -110px 0 4px #ff6b9d,
+          110px 0 0 4px #c239b3,
+          0 110px 0 4px #ffed4e,
+          -110px 0 0 4px #ff69b4;
+      }
+      60% {
+        box-shadow: 
+          0 -100px 0 3px rgba(255, 215, 0, 0.5),
+          100px 0 0 3px rgba(255, 20, 147, 0.5),
+          0 100px 0 3px rgba(255, 107, 157, 0.5),
+          -100px 0 0 3px rgba(194, 57, 179, 0.5),
+          70px -70px 0 3px rgba(255, 237, 78, 0.5),
+          -70px 70px 0 3px rgba(255, 105, 180, 0.5),
+          70px 70px 0 3px rgba(255, 215, 0, 0.5),
+          -70px -70px 0 3px rgba(255, 20, 147, 0.5),
+          0 -130px 0 2px rgba(255, 107, 157, 0.3),
+          130px 0 0 2px rgba(194, 57, 179, 0.3),
+          0 130px 0 2px rgba(255, 237, 78, 0.3),
+          -130px 0 0 2px rgba(255, 105, 180, 0.3);
+      }
+      100% {
+        box-shadow: 
+          0 -120px 0 0px rgba(255, 215, 0, 0),
+          120px 0 0 0px rgba(255, 20, 147, 0),
+          0 120px 0 0px rgba(255, 107, 157, 0),
+          -120px 0 0 0px rgba(194, 57, 179, 0),
+          85px -85px 0 0px rgba(255, 237, 78, 0),
+          -85px 85px 0 0px rgba(255, 105, 180, 0),
+          85px 85px 0 0px rgba(255, 215, 0, 0),
+          -85px -85px 0 0px rgba(255, 20, 147, 0);
+        opacity: 0;
+      }
+    }
+
+    @media (max-width: 520px){
+      .container{ padding: 10px 12px 18px; }
+      .title-container{ height: 96px; }
+      .word{ font-size: 20px; letter-spacing: .5px; }
+      
+      /* Reposition words for mobile - all on separate lines */
+      .word:nth-child(1) { top: 15px !important; left: 8% !important; }  /* HAPPY */
+      .word:nth-child(2) { top: 15px !important; left: 35% !important; } /* VALENTINE'S */
+      .word:nth-child(3) { top: 15px !important; left: 75% !important; } /* DAY */
+      .word:nth-child(4) { top: 50px !important; left: 50% !important; transform: translateX(-50%) !important; } /* GOGO */
+      
+      .question{ font-size: 18px; margin: 4px 0 10px; }
+      .letter-container{ padding: 16px; }
+      .letter-text{ font-size: 14.6px; min-height: 240px; }
+    }
+  </style>
+</head>
+
+<body>
+  <audio id="bgMusic" loop preload="auto">
+    <source src="./assets/final.mp3" type="audio/mpeg" />
+  </audio>
+
+  <div class="tapOverlay" id="tapOverlay">
+    <div class="tapBox">
+      <h3>Tap to start 💛</h3>
+      <p>Music + falling surprises will begin after you tap.</p>
+      <button id="tapStartBtn">Start</button>
+    </div>
   </div>
-  <div id="unlocked" class="hidden">
-    <h1>Valentine’s Day 💘</h1>
-    <p>Put the BIG final surprise here: a date plan, a letter, a photo collage link, anything.</p>
-    <a class="btn" href="./index.html">⬅ Back</a>
+
+  <div class="container">
+    <div class="title-container" id="titleContainer"></div>
+
+    <div class="video-slot">
+      <div class="video-container" id="videoContainer">
+        <video id="valentineVideo" controls controlsList="" playsinline preload="metadata">
+          <source src="./assets/final.mp4" type="video/mp4" />
+          Your browser does not support the video tag.
+        </video>
+      </div>
+    </div>
+
+    <div class="question">WILL YOU BE MY VALENTINE??</div>
+
+    <div class="letter-container">
+      <div class="letter-text" id="letterText"></div>
+    </div>
   </div>
-</div>
-<script>
-const UNLOCK_MONTH=2, UNLOCK_DAY=14;
-const debug = localStorage.getItem("vday_debug")==="1";
-const year=new Date().getFullYear();
-const unlockDate=new Date(year,UNLOCK_MONTH-1,UNLOCK_DAY,0,0,0,0);
-const ok = debug || (Date.now()>=unlockDate.getTime());
-document.getElementById(ok?"unlocked":"locked").classList.remove("hidden");
-</script>
-</body></html>
+
+  <script>
+    /* ---------------- HARD BLOCK until Start ---------------- */
+    let started = false;
+    let fallingInterval = null;
+    let typingStarted = false;
+
+    // On load: remove any falling elements that might exist
+    window.addEventListener("load", () => {
+      document.querySelectorAll(".falling-element").forEach(el => el.remove());
+    });
+
+    /* ---------------- Title animation (starts ONLY after click) ---------------- */
+    const titleWords = [
+      { text: "HAPPY",       top: 8,  left: 10 },
+      { text: "VALENTINE'S", top: 8,  left: 34 },
+      { text: "DAY",         top: 8,  left: 73 },
+      { text: "GOGO",        top: 56, left: 42 }
+    ];
+    const titleContainer = document.getElementById("titleContainer");
+    
+    function startTitleAnimation(){
+      titleWords.forEach((wordData, index) => {
+        setTimeout(() => {
+          const wordEl = document.createElement("div");
+          wordEl.className = "word";
+          wordEl.textContent = wordData.text;
+          wordEl.style.top = wordData.top + "px";
+          wordEl.style.left = wordData.left + "%";
+          titleContainer.appendChild(wordEl);
+        }, index * 350);
+      });
+    }
+
+    /* ---------------- Audio start overlay ---------------- */
+    const bgMusic = document.getElementById("bgMusic");
+    const tapOverlay = document.getElementById("tapOverlay");
+    const tapStartBtn = document.getElementById("tapStartBtn");
+
+    async function startMusicAndEffects(){
+      started = true; // ✅ unlock everything only now
+
+      // Start title animation
+      startTitleAnimation();
+      
+      // Show question and letter container
+      document.querySelector('.question').classList.add('show');
+      document.querySelector('.letter-container').classList.add('show');
+
+      try{
+        bgMusic.volume = 0.9;
+        await bgMusic.play();
+      }catch(e){
+        console.log("Music blocked:", e);
+      }
+
+      startFalling();
+      startTypewriter();
+
+      tapOverlay.style.display = "none";
+    }
+
+    tapStartBtn.addEventListener("click", startMusicAndEffects, { once:true });
+
+    /* ---------------- Falling elements ---------------- */
+    const elements = ["🌹","💐","💍","🍫","❤️","💕","🌺","🎀"];
+
+    function createFallingElement(){
+      // ✅ absolute block (even if some other interval calls it)
+      if(!started) return;
+
+      const el = document.createElement("div");
+      el.className = "falling-element";
+      el.textContent = elements[Math.floor(Math.random() * elements.length)];
+      el.style.left = (Math.random() * 100) + "%";
+
+      const isMobile = window.matchMedia("(max-width: 520px)").matches;
+
+      el.style.animationDuration = isMobile
+        ? (Math.random() * 3 + 10) + "s"
+        : (Math.random() * 4 + 9) + "s";
+
+      el.style.fontSize = isMobile
+        ? (Math.random() * 10 + 16) + "px"
+        : (Math.random() * 16 + 18) + "px";
+
+      document.body.appendChild(el);
+      setTimeout(() => el.remove(), 15000);
+    }
+
+    function startFalling(){
+      if(fallingInterval) return;
+      const isMobile = window.matchMedia("(max-width: 520px)").matches;
+      const rate = isMobile ? 950 : 650;
+      fallingInterval = setInterval(createFallingElement, rate);
+    }
+
+    /* ---------------- Typewriter ---------------- */
+    const letterContent = `Bebo, the day I met you was the most beautiful day of my life. I think my luck truly brightened from that moment. You are my soul, my love, my forever. In you, I found everything I had ever dreamt of — the kindness, the strength, the warmth, and that smile that melts my heart every single time. 
+
+We've had our fights, yes… but we have always found our way back to each other, loving again and again with stronger belief and deeper understanding. We have danced like no one was watching, shopped for silly little things, gone on random walks, laughed at nonsense jokes, and made simple moments feel magical. With you, even ordinary days feel extraordinary.
+
+You are a gem of a person, so rare and so precious, and I want you in my life forever and ever. I want to hold your hand through every high and low, to build dreams together, to grow old beside you, and to love you till my last breath. You are not just my love, you are my home, my peace, my biggest blessing. 
+
+And if I had to choose again, in every lifetime, I would still choose you. 💛`;
+
+    const letterText = document.getElementById("letterText");
+    let charIndex = 0;
+
+    function typeWriter(){
+      if(!started) return; // ✅ also blocked
+
+      if(charIndex < letterContent.length){
+        letterText.innerHTML = letterContent.substring(0, charIndex + 1) + '<span class="cursor"></span>';
+        charIndex++;
+        setTimeout(typeWriter, 55);
+      } else {
+        letterText.textContent = letterContent;
+        setTimeout(showVideo, 900);
+      }
+    }
+
+    function startTypewriter(){
+      if(typingStarted) return;
+      typingStarted = true;
+      setTimeout(typeWriter, 700);
+    }
+
+    /* ---------------- Video show/hide + music stop/start ---------------- */
+    const videoContainer = document.getElementById("videoContainer");
+    const valentineVideo = document.getElementById("valentineVideo");
+
+    function showVideo(){
+      if(!started) return;
+
+      videoContainer.classList.add("show");
+      try{ bgMusic.pause(); }catch(e){}
+
+      setTimeout(() => {
+        valentineVideo.play().catch(e => console.log("Video play blocked:", e));
+      }, 200);
+    }
+
+    valentineVideo.addEventListener("play", () => { 
+      try{ bgMusic.pause(); }catch(e){} 
+      stopFireworks(); // Stop fireworks when video plays
+    });
+    valentineVideo.addEventListener("pause", () => { bgMusic.play().catch(()=>{}); });
+    valentineVideo.addEventListener("ended", () => { 
+      bgMusic.play().catch(()=>{}); 
+      startContinuousFireworks(); // Start continuous fireworks
+    });
+
+    /* ---------------- Fireworks animation ---------------- */
+    let fireworksInterval = null;
+
+    function createFirework() {
+      const firework = document.createElement('div');
+      firework.className = 'firework';
+      
+      // Random corner: 0=top-left, 1=top-right, 2=bottom-left, 3=bottom-right
+      const corner = Math.floor(Math.random() * 4);
+      
+      switch(corner) {
+        case 0: // Top-left
+          firework.style.left = Math.random() * 15 + '%';
+          firework.style.top = Math.random() * 15 + '%';
+          break;
+        case 1: // Top-right
+          firework.style.left = (85 + Math.random() * 15) + '%';
+          firework.style.top = Math.random() * 15 + '%';
+          break;
+        case 2: // Bottom-left
+          firework.style.left = Math.random() * 15 + '%';
+          firework.style.bottom = Math.random() * 15 + '%';
+          break;
+        case 3: // Bottom-right
+          firework.style.left = (85 + Math.random() * 15) + '%';
+          firework.style.bottom = Math.random() * 15 + '%';
+          break;
+      }
+      
+      const colors = ['#ffd700', '#ff1493', '#ff6b9d', '#c239b3', '#ffed4e', '#ff69b4'];
+      firework.style.background = colors[Math.floor(Math.random() * colors.length)];
+      
+      document.body.appendChild(firework);
+      
+      // Direct explosion (no rocket animation)
+      firework.style.animation = 'fireworkExplosion 1.5s ease-out forwards';
+      
+      // Remove after explosion
+      setTimeout(() => {
+        firework.remove();
+      }, 1500);
+    }
+
+    function startContinuousFireworks() {
+      if (fireworksInterval) return; // Already running
+      
+      // Create fireworks continuously
+      fireworksInterval = setInterval(() => {
+        createFirework();
+        
+        // Sometimes create 2-3 at once for bigger celebration
+        if (Math.random() > 0.5) {
+          setTimeout(() => createFirework(), 100);
+        }
+        if (Math.random() > 0.7) {
+          setTimeout(() => createFirework(), 250);
+        }
+      }, 600); // Create new firework every 600ms
+    }
+
+    function stopFireworks() {
+      if (fireworksInterval) {
+        clearInterval(fireworksInterval);
+        fireworksInterval = null;
+      }
+      // Remove any existing fireworks
+      document.querySelectorAll('.firework').forEach(fw => fw.remove());
+    }
+  </script>
+</body>
+</html>
