@@ -9,30 +9,37 @@
     *{ margin:0; padding:0; box-sizing:border-box; }
 
     body{
-      font-family:'Georgia', serif;
-      background-image: url('./assets/final.png');
-      background-size: cover;
-      background-position: center;
-      background-repeat: no-repeat;
-      position: relative;
-      overflow-x:hidden;
-      min-height:100vh;
-    }
-    body::before{
-      content: '';
-      position: fixed;
-      inset: 0;
-      background: linear-gradient(135deg, rgba(255, 107, 157, 0.7) 0%, rgba(194, 57, 179, 0.7) 25%, rgba(255, 20, 147, 0.7) 50%, rgba(139, 0, 139, 0.7) 75%, rgba(255, 105, 180, 0.7) 100%);
-      background-size: 400% 400%;
-      animation: gradientShift 15s ease infinite;
-      z-index: -1;
-      pointer-events: none;
-    }
-    @keyframes gradientShift{
-      0%{ background-position:0% 50%; }
-      50%{ background-position:100% 50%; }
-      100%{ background-position:0% 50%; }
-    }
+  font-family:'Georgia', serif;
+  overflow-x:hidden;
+  min-height:100vh;
+  position: relative;
+}
+
+/* ✅ Real background layer (mobile-safe) */
+.bg{
+  position: fixed;
+  inset: 0;
+  z-index: 0;
+  background-image:
+    linear-gradient(
+      135deg,
+      rgba(255, 107, 157, 0.7) 0%,
+      rgba(194, 57, 179, 0.7) 25%,
+      rgba(255, 20, 147, 0.7) 50%,
+      rgba(139, 0, 139, 0.7) 75%,
+      rgba(255, 105, 180, 0.7) 100%
+    ),
+    url('./assets/final.png');
+  background-size: 400% 400%, cover;
+  background-position: 0% 50%, center;
+  background-repeat: no-repeat;
+  animation: gradientShift 15s ease infinite;
+  pointer-events: none;
+}
+
+/* make sure your content stays above bg */
+.container{ position: relative; z-index: 5; }
+.tapOverlay{ z-index: 9999; }
 
     /* Tap to start overlay */
     .tapOverlay{
@@ -338,6 +345,7 @@
 </head>
 
 <body>
+  <div class="bg"></div>
   <audio id="bgMusic" loop preload="auto">
     <source src="./assets/final.mp3" type="audio/mpeg" />
   </audio>
@@ -345,7 +353,7 @@
   <div class="tapOverlay" id="tapOverlay">
     <div class="tapBox">
       <h3>Tap to start 💛</h3>
-      <p>Music + falling surprises will begin after you tap.</p>
+      <p>Music ahead Doc.</p>
       <button id="tapStartBtn">Start</button>
     </div>
   </div>
